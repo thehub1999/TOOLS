@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter - Multi-Tools</title>
+    <meta name="description" content="Convert between different currencies using real-time exchange rates. Free online currency converter tool.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Currency Converter</h1>
+                <p class="tool-description">Convert between different currencies using real-time exchange rates. Supports major world currencies.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="converterForm">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="amount" class="form-label">Amount</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="amount" value="1" min="0" step="0.01" required>
+                                            <button class="btn btn-outline-secondary" type="button" id="swapBtn">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="result" class="form-label">Converted Amount</label>
+                                        <input type="text" class="form-control" id="result" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-6">
+                                        <label for="fromCurrency" class="form-label">From Currency</label>
+                                        <select class="form-select" id="fromCurrency" required>
+                                            <option value="USD" selected>US Dollar (USD)</option>
+                                            <option value="EUR">Euro (EUR)</option>
+                                            <option value="GBP">British Pound (GBP)</option>
+                                            <option value="JPY">Japanese Yen (JPY)</option>
+                                            <option value="AUD">Australian Dollar (AUD)</option>
+                                            <option value="CAD">Canadian Dollar (CAD)</option>
+                                            <option value="CHF">Swiss Franc (CHF)</option>
+                                            <option value="CNY">Chinese Yuan (CNY)</option>
+                                            <option value="INR">Indian Rupee (INR)</option>
+                                            <!-- Add more currencies as needed -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="toCurrency" class="form-label">To Currency</label>
+                                        <select class="form-select" id="toCurrency" required>
+                                            <option value="EUR" selected>Euro (EUR)</option>
+                                            <option value="USD">US Dollar (USD)</option>
+                                            <option value="GBP">British Pound (GBP)</option>
+                                            <option value="JPY">Japanese Yen (JPY)</option>
+                                            <option value="AUD">Australian Dollar (AUD)</option>
+                                            <option value="CAD">Canadian Dollar (CAD)</option>
+                                            <option value="CHF">Swiss Franc (CHF)</option>
+                                            <option value="CNY">Chinese Yuan (CNY)</option>
+                                            <option value="INR">Indian Rupee (INR)</option>
+                                            <!-- Add more currencies as needed -->
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-currency-exchange"></i> Convert
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="mt-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div id="exchangeRate" class="text-muted small">
+                                        <!-- Exchange rate will be displayed here -->
+                                    </div>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-clock"></i> Last updated: <span id="lastUpdate"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>Popular Conversions</h5>
+                        <div class="row g-2" id="popularConversions">
+                            <!-- Popular conversions will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Currency Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="currencyInfo">
+                                <!-- Currency information will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const converterForm = document.getElementById('converterForm');
+            const amount = document.getElementById('amount');
+            const fromCurrency = document.getElementById('fromCurrency');
+            const toCurrency = document.getElementById('toCurrency');
+            const result = document.getElementById('result');
+            const exchangeRate = document.getElementById('exchangeRate');
+            const lastUpdate = document.getElementById('lastUpdate');
+            const swapBtn = document.getElementById('swapBtn');
+            const popularConversions = document.getElementById('popularConversions');
+            const currencyInfo = document.getElementById('currencyInfo');
+
+            // Example exchange rates (replace with real API data)
+            const exchangeRates = {
+                USD: { EUR: 0.85, GBP: 0.73, JPY: 110.0 },
+                EUR: { USD: 1.18, GBP: 0.86, JPY: 129.5 },
+                GBP: { USD: 1.37, EUR: 1.16, JPY: 150.2 },
+                JPY: { USD: 0.0091, EUR: 0.0077, GBP: 0.0067 }
+            };
+
+            // Currency information
+            const currencyDetails = {
+                USD: {
+                    name: 'US Dollar',
+                    symbol: '$',
+                    countries: ['United States', 'Ecuador', 'El Salvador']
+                },
+                EUR: {
+                    name: 'Euro',
+                    symbol: '€',
+                    countries: ['European Union (27 countries)']
+                },
+                GBP: {
+                    name: 'British Pound',
+                    symbol: '£',
+                    countries: ['United Kingdom']
+                },
+                JPY: {
+                    name: 'Japanese Yen',
+                    symbol: '¥',
+                    countries: ['Japan']
+                }
+            };
+
+            // Convert currency
+            function convertCurrency(amount, from, to) {
+                if (from === to) return amount;
+                if (exchangeRates[from] && exchangeRates[from][to]) {
+                    return amount * exchangeRates[from][to];
+                }
+                return null;
+            }
+
+            // Update currency information
+            function updateCurrencyInfo(currency) {
+                const info = currencyDetails[currency];
+                if (info) {
+                    currencyInfo.innerHTML = `
+                        <h6>${info.name} (${currency})</h6>
+                        <p><strong>Symbol:</strong> ${info.symbol}</p>
+                        <p><strong>Used in:</strong></p>
+                        <ul class="small">
+                            ${info.countries.map(country => `<li>${country}</li>`).join('')}
+                        </ul>
+                    `;
+                }
+            }
+
+            // Handle form submission
+            converterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const convertedAmount = convertCurrency(
+                    parseFloat(amount.value),
+                    fromCurrency.value,
+                    toCurrency.value
+                );
+                
+                if (convertedAmount !== null) {
+                    result.value = convertedAmount.toFixed(2);
+                    const rate = exchangeRates[fromCurrency.value][toCurrency.value];
+                    exchangeRate.textContent = `1 ${fromCurrency.value} = ${rate.toFixed(4)} ${toCurrency.value}`;
+                    lastUpdate.textContent = new Date().toLocaleTimeString();
+                } else {
+                    result.value = 'Conversion not available';
+                }
+            });
+
+            // Swap currencies
+            swapBtn.addEventListener('click', () => {
+                const temp = fromCurrency.value;
+                fromCurrency.value = toCurrency.value;
+                toCurrency.value = temp;
+                converterForm.dispatchEvent(new Event('submit'));
+            });
+
+            // Update currency info when selection changes
+            fromCurrency.addEventListener('change', () => {
+                updateCurrencyInfo(fromCurrency.value);
+            });
+
+            // Add popular conversions
+            const popularPairs = [
+                { from: 'USD', to: 'EUR' },
+                { from: 'EUR', to: 'GBP' },
+                { from: 'GBP', to: 'USD' }
+            ];
+
+            popularPairs.forEach(pair => {
+                const rate = convertCurrency(1, pair.from, pair.to);
+                const div = document.createElement('div');
+                div.className = 'col-md-4';
+                div.innerHTML = `
+                    <div class="card">
+                        <div class="card-body p-2 text-center">
+                            <div class="small">
+                                <strong>${pair.from}</strong> → ${pair.to}<br>
+                                1 ${pair.from} = ${rate.toFixed(4)} ${pair.to}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                popularConversions.appendChild(div);
+            });
+
+            // Initialize with default currency info
+            updateCurrencyInfo(fromCurrency.value);
+            converterForm.dispatchEvent(new Event('submit'));
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to AVIF - Multi-Tools</title>
+    <meta name="description" content="Convert images to AVIF format with advanced compression options.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .drag-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .drag-area.dragover {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .drag-area img {
+            max-width: 100%;
+            max-height: 250px;
+            margin-bottom: 1rem;
+        }
+        .image-info {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .preview-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .avif-options {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .output-preview {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 1rem;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .output-preview img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+        .output-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .output-controls button {
+            min-width: 120px;
+        }
+        .compression-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Image to AVIF</h1>
+                <p class="tool-description">Convert images to AVIF format with advanced compression options.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Upload Image</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="uploadArea">
+                                <div class="drag-area" id="dropZone">
+                                    <i class="bi bi-image display-4 mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted mb-0">Supports: JPG, PNG, WebP (Max 10MB)</p>
+                                    <input type="file" id="fileInput" accept="image/*" class="d-none">
+                                </div>
+                            </div>
+                            <div id="previewArea" class="d-none">
+                                <div class="preview-container">
+                                    <img id="previewImage" src="" alt="Preview">
+                                </div>
+                                <div class="image-info">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">File Name: <span id="fileName">-</span></p>
+                                            <p class="mb-1">File Size: <span id="fileSize">-</span></p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">Dimensions: <span id="dimensions">-</span></p>
+                                            <p class="mb-1">Format: <span id="format">-</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">AVIF Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="avif-options">
+                                <div class="mb-3">
+                                    <label class="form-label">Quality</label>
+                                    <input type="range" class="form-range" id="quality" min="0" max="100" value="80">
+                                    <div class="text-center">
+                                        <span id="qualityValue">80</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Compression Speed</label>
+                                    <select class="form-select" id="speed">
+                                        <option value="0">Best Quality</option>
+                                        <option value="1">Balanced</option>
+                                        <option value="2">Fast</option>
+                                        <option value="3">Fastest</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Chroma Subsampling</label>
+                                    <select class="form-select" id="subsampling">
+                                        <option value="444">4:4:4 (Best Quality)</option>
+                                        <option value="422">4:2:2 (Balanced)</option>
+                                        <option value="420">4:2:0 (Best Compression)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Resize</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="maxWidth" placeholder="Max Width" min="100" max="4096" step="100">
+                                        <span class="input-group-text">×</span>
+                                        <input type="number" class="form-control" id="maxHeight" placeholder="Max Height" min="100" max="4096" step="100">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lossless" checked>
+                                        <label class="form-check-label" for="lossless">
+                                            Lossless Compression
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Background Color</label>
+                                    <input type="color" class="form-control form-control-color" id="bgColor" value="#ffffff">
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="convertBtn" disabled>
+                                    <i class="bi bi-arrow-repeat"></i> Convert to AVIF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">AVIF Output</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="outputArea" class="d-none">
+                                <div class="output-preview" id="outputPreview"></div>
+                                <div class="compression-info" id="compressionInfo"></div>
+                                <div class="output-controls">
+                                    <button class="btn btn-success" id="downloadBtn">
+                                        <i class="bi bi-download"></i> Download AVIF
+                                    </button>
+                                    <button class="btn btn-outline-secondary" id="resetBtn">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Convert Another
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/libavif@0.11.1/libavif.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const previewImage = document.getElementById('previewImage');
+            const uploadArea = document.getElementById('uploadArea');
+            const previewArea = document.getElementById('previewArea');
+            const outputArea = document.getElementById('outputArea');
+            const outputPreview = document.getElementById('outputPreview');
+            const compressionInfo = document.getElementById('compressionInfo');
+            const convertBtn = document.getElementById('convertBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const quality = document.getElementById('quality');
+            const qualityValue = document.getElementById('qualityValue');
+            const speed = document.getElementById('speed');
+            const subsampling = document.getElementById('subsampling');
+            const maxWidth = document.getElementById('maxWidth');
+            const maxHeight = document.getElementById('maxHeight');
+            const lossless = document.getElementById('lossless');
+            const bgColor = document.getElementById('bgColor');
+
+            let originalImage = null;
+            let avifBlob = null;
+
+            // Handle drag and drop
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFile(e.target.files[0]);
+            });
+
+            // Handle quality slider
+            quality.addEventListener('input', (e) => {
+                qualityValue.textContent = e.target.value;
+            });
+
+            // Handle file selection
+            function handleFile(file) {
+                if (file && file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        originalImage = new Image();
+                        originalImage.onload = () => {
+                            previewImage.src = e.target.result;
+                            uploadArea.classList.add('d-none');
+                            previewArea.classList.remove('d-none');
+                            outputArea.classList.add('d-none');
+                            updateImageInfo(file);
+                            convertBtn.disabled = false;
+                        };
+                        originalImage.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Update image information
+            function updateImageInfo(file) {
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatBytes(file.size);
+                document.getElementById('format').textContent = file.type.split('/')[1].toUpperCase();
+                document.getElementById('dimensions').textContent = `${originalImage.width} × ${originalImage.height}px`;
+            }
+
+            // Convert button click handler
+            convertBtn.addEventListener('click', async () => {
+                convertBtn.disabled = true;
+                convertBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Converting...';
+
+                try {
+                    // Create canvas for image processing
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Calculate new dimensions
+                    let width = originalImage.width;
+                    let height = originalImage.height;
+
+                    if (maxWidth.value && maxHeight.value) {
+                        const ratio = Math.min(
+                            maxWidth.value / width,
+                            maxHeight.value / height
+                        );
+
+                        if (ratio < 1) {
+                            width = Math.round(width * ratio);
+                            height = Math.round(height * ratio);
+                        }
+                    }
+
+                    // Set canvas dimensions
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // Fill background
+                    ctx.fillStyle = bgColor.value;
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Draw image
+                    ctx.drawImage(originalImage, 0, 0, width, height);
+
+                    // Get image data
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const data = imageData.data;
+
+                    // Create AVIF encoder
+                    const encoder = new libavif.Encoder();
+                    encoder.setQuality(parseInt(quality.value));
+                    encoder.setSpeed(parseInt(speed.value));
+                    encoder.setSubsampling(parseInt(subsampling.value));
+                    encoder.setLossless(lossless.checked);
+
+                    // Add image to encoder
+                    encoder.addImage(data, width, height);
+
+                    // Encode AVIF
+                    const avifData = await encoder.finish();
+
+                    // Create blob
+                    avifBlob = new Blob([avifData], { type: 'image/avif' });
+                    const url = URL.createObjectURL(avifBlob);
+
+                    // Update preview
+                    outputPreview.innerHTML = `<img src="${url}" alt="AVIF Preview">`;
+
+                    // Update compression info
+                    const originalSize = originalImage.src.length * 0.75;
+                    const avifSize = avifBlob.size;
+                    const compressionRatio = ((originalSize - avifSize) / originalSize * 100).toFixed(1);
+                    compressionInfo.textContent = `Original: ${formatBytes(originalSize)} | AVIF: ${formatBytes(avifSize)} | Saved: ${compressionRatio}%`;
+
+                    outputArea.classList.remove('d-none');
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Convert to AVIF';
+                } catch (error) {
+                    console.error('Failed to convert image:', error);
+                    alert('Failed to convert image. Please try again.');
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Convert to AVIF';
+                }
+            });
+
+            // Download button click handler
+            downloadBtn.addEventListener('click', () => {
+                if (avifBlob) {
+                    const url = URL.createObjectURL(avifBlob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'image.avif';
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }
+            });
+
+            // Reset button click handler
+            resetBtn.addEventListener('click', () => {
+                previewImage.src = '';
+                fileInput.value = '';
+                uploadArea.classList.remove('d-none');
+                previewArea.classList.add('d-none');
+                outputArea.classList.add('d-none');
+                convertBtn.disabled = true;
+                outputPreview.innerHTML = '';
+                compressionInfo.textContent = '';
+
+                document.getElementById('fileName').textContent = '-';
+                document.getElementById('fileSize').textContent = '-';
+                document.getElementById('dimensions').textContent = '-';
+                document.getElementById('format').textContent = '-';
+            });
+
+            // Helper function
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html> 

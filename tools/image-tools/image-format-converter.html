@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Format Converter - Multi-Tools</title>
+    <meta name="description" content="Convert images between different formats including JPG, PNG, WebP, and more. Free online image format converter tool.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .preview-container {
+            max-width: 100%;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #f8f9fa;
+            text-align: center;
+            padding: 1rem;
+        }
+        .img-container {
+            max-height: 500px;
+            margin-bottom: 1rem;
+        }
+        #preview {
+            max-width: 100%;
+            max-height: 500px;
+        }
+        .drag-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .drag-area.dragover {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .image-info {
+            text-align: left;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Image Format Converter</h1>
+                <p class="tool-description">Convert your images between different formats including JPG, PNG, WebP, and more. Maintain quality while changing formats.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div id="uploadArea">
+                                <div class="drag-area" id="dropZone">
+                                    <i class="bi bi-arrow-repeat display-4 mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted mb-0">Supports: JPG, PNG, WebP, GIF, BMP (Max 10MB)</p>
+                                    <input type="file" id="fileInput" accept="image/*" class="d-none">
+                                </div>
+                            </div>
+                            <div id="previewArea" class="d-none">
+                                <div class="img-container">
+                                    <img id="preview" src="" alt="Preview">
+                                </div>
+                                <div class="image-info">
+                                    <h6>Image Information:</h6>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">Original Format: <span id="originalFormat">-</span></p>
+                                            <p class="mb-1">Original Size: <span id="originalSize">-</span></p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">Dimensions: <span id="dimensions">-</span></p>
+                                            <p class="mb-1">New Size: <span id="newSize">-</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <button class="btn btn-outline-secondary me-2" id="resetBtn">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                    </button>
+                                    <button class="btn btn-primary" id="downloadBtn" disabled>
+                                        <i class="bi bi-download"></i> Download Image
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Conversion Options -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Conversion Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Output Format</label>
+                                <select class="form-select" id="outputFormat">
+                                    <option value="jpeg">JPEG</option>
+                                    <option value="png">PNG</option>
+                                    <option value="webp">WebP</option>
+                                    <option value="gif">GIF</option>
+                                    <option value="bmp">BMP</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="jpegOptions">
+                                <label class="form-label">Quality (JPEG/WebP)</label>
+                                <input type="range" class="form-range" id="quality" min="0" max="100" value="92">
+                                <div class="text-muted small text-end">
+                                    Quality: <span id="qualityValue">92</span>%
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Preserve Metadata</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="preserveMetadata">
+                                    <label class="form-check-label" for="preserveMetadata">Keep EXIF data</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Color Space</label>
+                                <select class="form-select" id="colorSpace">
+                                    <option value="srgb">sRGB (Standard)</option>
+                                    <option value="rgb">RGB</option>
+                                    <option value="grayscale">Grayscale</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Batch Processing -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Batch Processing</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Convert multiple images at once by selecting multiple files.</p>
+                            <input type="file" class="form-control mb-3" id="batchInput" accept="image/*" multiple>
+                            <button class="btn btn-primary w-100" id="batchConvertBtn" disabled>
+                                <i class="bi bi-collection"></i> Convert All Files
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const batchInput = document.getElementById('batchInput');
+            const preview = document.getElementById('preview');
+            const uploadArea = document.getElementById('uploadArea');
+            const previewArea = document.getElementById('previewArea');
+            const resetBtn = document.getElementById('resetBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const batchConvertBtn = document.getElementById('batchConvertBtn');
+            const outputFormat = document.getElementById('outputFormat');
+            const quality = document.getElementById('quality');
+            const qualityValue = document.getElementById('qualityValue');
+            const preserveMetadata = document.getElementById('preserveMetadata');
+            const colorSpace = document.getElementById('colorSpace');
+            const jpegOptions = document.getElementById('jpegOptions');
+
+            let originalImage = null;
+            let originalFile = null;
+
+            // Handle drag and drop
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFile(e.target.files[0]);
+            });
+
+            // Handle file selection
+            function handleFile(file) {
+                if (file && file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    originalFile = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        originalImage = e.target.result;
+                        preview.src = originalImage;
+                        uploadArea.classList.add('d-none');
+                        previewArea.classList.remove('d-none');
+                        downloadBtn.disabled = false;
+                        updateImageInfo(file);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Update image information
+            function updateImageInfo(file) {
+                const format = file.type.split('/')[1].toUpperCase();
+                const size = formatBytes(file.size);
+                document.getElementById('originalFormat').textContent = format;
+                document.getElementById('originalSize').textContent = size;
+
+                const img = new Image();
+                img.onload = () => {
+                    document.getElementById('dimensions').textContent = `${img.width} × ${img.height}px`;
+                };
+                img.src = URL.createObjectURL(file);
+            }
+
+            // Format bytes to human-readable size
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Handle output format change
+            outputFormat.addEventListener('change', () => {
+                const format = outputFormat.value;
+                jpegOptions.style.display = (format === 'jpeg' || format === 'webp') ? 'block' : 'none';
+            });
+
+            // Update quality value display
+            quality.addEventListener('input', () => {
+                qualityValue.textContent = quality.value;
+            });
+
+            // Handle batch input
+            batchInput.addEventListener('change', () => {
+                batchConvertBtn.disabled = batchInput.files.length === 0;
+            });
+
+            // Reset function
+            resetBtn.addEventListener('click', () => {
+                preview.src = '';
+                originalImage = null;
+                originalFile = null;
+                fileInput.value = '';
+                uploadArea.classList.remove('d-none');
+                previewArea.classList.add('d-none');
+                downloadBtn.disabled = true;
+                document.getElementById('originalFormat').textContent = '-';
+                document.getElementById('originalSize').textContent = '-';
+                document.getElementById('dimensions').textContent = '-';
+                document.getElementById('newSize').textContent = '-';
+            });
+
+            // Download function
+            downloadBtn.addEventListener('click', () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    // Apply color space conversion if needed
+                    if (colorSpace.value === 'grayscale') {
+                        ctx.filter = 'grayscale(100%)';
+                    }
+
+                    ctx.drawImage(img, 0, 0);
+
+                    // Convert to selected format
+                    const format = outputFormat.value;
+                    const qualityValue = format === 'jpeg' || format === 'webp' ? quality.value / 100 : 1;
+
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        const originalName = originalFile.name.split('.')[0];
+                        link.download = `${originalName}.${format}`;
+                        link.href = url;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                        
+                        // Update new size information
+                        document.getElementById('newSize').textContent = formatBytes(blob.size);
+                    }, `image/${format}`, qualityValue);
+                };
+
+                img.src = originalImage;
+            });
+
+            // Batch conversion
+            batchConvertBtn.addEventListener('click', () => {
+                Array.from(batchInput.files).forEach(file => {
+                    if (file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+
+                                if (colorSpace.value === 'grayscale') {
+                                    ctx.filter = 'grayscale(100%)';
+                                }
+
+                                ctx.drawImage(img, 0, 0);
+
+                                const format = outputFormat.value;
+                                const qualityValue = format === 'jpeg' || format === 'webp' ? quality.value / 100 : 1;
+
+                                canvas.toBlob((blob) => {
+                                    const url = URL.createObjectURL(blob);
+                                    const link = document.createElement('a');
+                                    const originalName = file.name.split('.')[0];
+                                    link.download = `${originalName}.${format}`;
+                                    link.href = url;
+                                    link.click();
+                                    URL.revokeObjectURL(url);
+                                }, `image/${format}`, qualityValue);
+                            };
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

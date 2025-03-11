@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Encoder/Decoder - Free Online Tool</title>
+    <meta name="description" content="Free online URL encoder and decoder tool. Encode and decode URLs and query parameters.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .converter-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .options-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .params-table {
+            background-color: #fff;
+            border-radius: 5px;
+        }
+        .param-row {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">URL Encoder/Decoder</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="converter-card">
+                    <!-- Input Section -->
+                    <div class="options-section mb-4">
+                        <h5 class="mb-3">Input URL</h5>
+                        <textarea class="form-control input-output mb-3" id="input" rows="3" 
+                            placeholder="Enter URL to encode or decode..."></textarea>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button class="btn btn-primary" onclick="encode()">Encode URL</button>
+                            <button class="btn btn-secondary" onclick="decode()">Decode URL</button>
+                            <button class="btn btn-success" onclick="parseUrl()">Parse URL</button>
+                            <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+                        </div>
+                    </div>
+
+                    <!-- Output Section -->
+                    <div class="options-section">
+                        <h5 class="mb-3">Output</h5>
+                        <textarea class="form-control input-output mb-3" id="output" rows="3" readonly></textarea>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-success" onclick="copyOutput()">Copy Output</button>
+                        </div>
+                    </div>
+
+                    <!-- URL Components -->
+                    <div class="options-section" id="urlComponents" style="display: none;">
+                        <h5 class="mb-3">URL Components</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Protocol</label>
+                            <input type="text" class="form-control input-output" id="protocol" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Host</label>
+                            <input type="text" class="form-control input-output" id="host" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Port</label>
+                            <input type="text" class="form-control input-output" id="port" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Path</label>
+                            <input type="text" class="form-control input-output" id="path" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Query Parameters</label>
+                            <div id="params" class="params-table">
+                                <!-- Query parameters will be added here -->
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hash</label>
+                            <input type="text" class="form-control input-output" id="hash" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const urlComponents = document.getElementById('urlComponents');
+        const protocol = document.getElementById('protocol');
+        const host = document.getElementById('host');
+        const port = document.getElementById('port');
+        const path = document.getElementById('path');
+        const params = document.getElementById('params');
+        const hash = document.getElementById('hash');
+
+        function encode() {
+            if (!input.value) {
+                alert('Please enter a URL to encode');
+                return;
+            }
+            try {
+                output.value = encodeURIComponent(input.value);
+                urlComponents.style.display = 'none';
+            } catch (e) {
+                alert('Error encoding URL: ' + e.message);
+            }
+        }
+
+        function decode() {
+            if (!input.value) {
+                alert('Please enter a URL to decode');
+                return;
+            }
+            try {
+                output.value = decodeURIComponent(input.value);
+                urlComponents.style.display = 'none';
+            } catch (e) {
+                alert('Error decoding URL: ' + e.message);
+            }
+        }
+
+        function parseUrl() {
+            if (!input.value) {
+                alert('Please enter a URL to parse');
+                return;
+            }
+            try {
+                const url = new URL(input.value);
+                
+                // Set URL components
+                protocol.value = url.protocol;
+                host.value = url.hostname;
+                port.value = url.port || '(default)';
+                path.value = url.pathname;
+                hash.value = url.hash;
+
+                // Parse query parameters
+                params.innerHTML = '';
+                const searchParams = new URLSearchParams(url.search);
+                searchParams.forEach((value, key) => {
+                    const row = document.createElement('div');
+                    row.className = 'param-row';
+                    row.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-5">
+                                <input type="text" class="form-control input-output" value="${key}" readonly>
+                            </div>
+                            <div class="col-md-7">
+                                <input type="text" class="form-control input-output" value="${value}" readonly>
+                            </div>
+                        </div>
+                    `;
+                    params.appendChild(row);
+                });
+
+                if (!params.children.length) {
+                    params.innerHTML = '<p class="text-muted m-0">No query parameters</p>';
+                }
+
+                urlComponents.style.display = 'block';
+                output.value = input.value;
+            } catch (e) {
+                alert('Invalid URL: ' + e.message);
+            }
+        }
+
+        function copyOutput() {
+            output.select();
+            document.execCommand('copy');
+            alert('Output copied to clipboard!');
+        }
+
+        function clearAll() {
+            input.value = '';
+            output.value = '';
+            urlComponents.style.display = 'none';
+            protocol.value = '';
+            host.value = '';
+            port.value = '';
+            path.value = '';
+            params.innerHTML = '';
+            hash.value = '';
+        }
+
+        // Auto-parse URLs on paste
+        input.addEventListener('paste', (e) => {
+            setTimeout(parseUrl, 0);
+        });
+    </script>
+</body>
+</html> 

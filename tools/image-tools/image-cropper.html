@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Cropper - Multi-Tools</title>
+    <meta name="description" content="Crop and reshape your images online. Free online image cropping tool with aspect ratio presets and custom dimensions.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .preview-container {
+            max-width: 100%;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #f8f9fa;
+            text-align: center;
+            padding: 1rem;
+        }
+        .img-container {
+            max-height: 500px;
+            margin-bottom: 1rem;
+        }
+        #preview {
+            max-width: 100%;
+            max-height: 500px;
+        }
+        .drag-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .drag-area.dragover {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .aspect-ratio-btn {
+            margin: 0.25rem;
+        }
+        .cropper-view-box,
+        .cropper-face {
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Image Cropper</h1>
+                <p class="tool-description">Crop and reshape your images with precision. Choose from preset aspect ratios or set custom dimensions.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div id="uploadArea">
+                                <div class="drag-area" id="dropZone">
+                                    <i class="bi bi-crop display-4 mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted mb-0">Supports: JPG, PNG, WebP (Max 10MB)</p>
+                                    <input type="file" id="fileInput" accept="image/*" class="d-none">
+                                </div>
+                            </div>
+                            <div id="cropperArea" class="d-none">
+                                <div class="img-container">
+                                    <img id="preview" src="" alt="Preview">
+                                </div>
+                                <div class="btn-toolbar justify-content-center mb-3">
+                                    <div class="btn-group me-2">
+                                        <button class="btn btn-outline-secondary" id="rotateLeftBtn">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" id="rotateRightBtn">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" id="flipHorizontalBtn">
+                                            <i class="bi bi-arrow-left-right"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" id="flipVerticalBtn">
+                                            <i class="bi bi-arrow-down-up"></i>
+                                        </button>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button class="btn btn-outline-secondary" id="resetBtn">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Cropping Options -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Cropping Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Aspect Ratio</label>
+                                <div class="d-flex flex-wrap">
+                                    <button class="btn btn-outline-primary aspect-ratio-btn" data-ratio="free">Free</button>
+                                    <button class="btn btn-outline-primary aspect-ratio-btn" data-ratio="1">1:1</button>
+                                    <button class="btn btn-outline-primary aspect-ratio-btn" data-ratio="4/3">4:3</button>
+                                    <button class="btn btn-outline-primary aspect-ratio-btn" data-ratio="16/9">16:9</button>
+                                    <button class="btn btn-outline-primary aspect-ratio-btn" data-ratio="2/3">2:3</button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Custom Dimensions</label>
+                                <div class="input-group mb-2">
+                                    <input type="number" class="form-control" id="cropWidth" placeholder="Width">
+                                    <span class="input-group-text">×</span>
+                                    <input type="number" class="form-control" id="cropHeight" placeholder="Height">
+                                    <button class="btn btn-outline-secondary" id="applyDimensionsBtn">Apply</button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Output Format</label>
+                                <select class="form-select" id="outputFormat">
+                                    <option value="jpeg">JPEG</option>
+                                    <option value="png">PNG</option>
+                                    <option value="webp">WebP</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Quality</label>
+                                <input type="range" class="form-range" id="qualityRange" min="0" max="100" value="92">
+                                <div class="text-muted small text-end">
+                                    Quality: <span id="qualityValue">92</span>%
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary w-100" id="cropBtn" disabled>
+                                <i class="bi bi-crop"></i> Crop Image
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Image Information -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Image Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <strong>Original Size:</strong>
+                                    <span id="originalSize">-</span>
+                                </li>
+                                <li class="mb-2">
+                                    <strong>Original Dimensions:</strong>
+                                    <span id="originalDimensions">-</span>
+                                </li>
+                                <li>
+                                    <strong>Crop Dimensions:</strong>
+                                    <span id="cropDimensions">-</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const preview = document.getElementById('preview');
+            const uploadArea = document.getElementById('uploadArea');
+            const cropperArea = document.getElementById('cropperArea');
+            const cropBtn = document.getElementById('cropBtn');
+            const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+            const rotateRightBtn = document.getElementById('rotateRightBtn');
+            const flipHorizontalBtn = document.getElementById('flipHorizontalBtn');
+            const flipVerticalBtn = document.getElementById('flipVerticalBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const aspectRatioBtns = document.querySelectorAll('.aspect-ratio-btn');
+            const cropWidth = document.getElementById('cropWidth');
+            const cropHeight = document.getElementById('cropHeight');
+            const applyDimensionsBtn = document.getElementById('applyDimensionsBtn');
+            const outputFormat = document.getElementById('outputFormat');
+            const qualityRange = document.getElementById('qualityRange');
+            const qualityValue = document.getElementById('qualityValue');
+            const originalSize = document.getElementById('originalSize');
+            const originalDimensions = document.getElementById('originalDimensions');
+            const cropDimensions = document.getElementById('cropDimensions');
+
+            let cropper = null;
+
+            // Handle drag and drop
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFile(e.target.files[0]);
+            });
+
+            // Handle file selection
+            function handleFile(file) {
+                if (file && file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        preview.src = e.target.result;
+                        uploadArea.classList.add('d-none');
+                        cropperArea.classList.remove('d-none');
+                        cropBtn.disabled = false;
+
+                        // Initialize cropper
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        cropper = new Cropper(preview, {
+                            viewMode: 2,
+                            dragMode: 'move',
+                            autoCropArea: 1,
+                            restore: false,
+                            guides: true,
+                            center: true,
+                            highlight: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            toggleDragModeOnDblclick: false,
+                            crop(event) {
+                                const data = event.detail;
+                                cropDimensions.textContent = `${Math.round(data.width)}×${Math.round(data.height)}`;
+                            }
+                        });
+
+                        // Update image information
+                        originalSize.textContent = formatFileSize(file.size);
+                        const img = new Image();
+                        img.onload = () => {
+                            originalDimensions.textContent = `${img.width}×${img.height}`;
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Cropper controls
+            rotateLeftBtn.addEventListener('click', () => cropper.rotate(-90));
+            rotateRightBtn.addEventListener('click', () => cropper.rotate(90));
+            flipHorizontalBtn.addEventListener('click', () => cropper.scaleX(-cropper.getData().scaleX || -1));
+            flipVerticalBtn.addEventListener('click', () => cropper.scaleY(-cropper.getData().scaleY || -1));
+            resetBtn.addEventListener('click', () => cropper.reset());
+
+            // Aspect ratio buttons
+            aspectRatioBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    aspectRatioBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const ratio = btn.dataset.ratio;
+                    cropper.setAspectRatio(ratio === 'free' ? NaN : eval(ratio));
+                });
+            });
+
+            // Apply custom dimensions
+            applyDimensionsBtn.addEventListener('click', () => {
+                const width = parseInt(cropWidth.value);
+                const height = parseInt(cropHeight.value);
+                if (width > 0 && height > 0) {
+                    cropper.setAspectRatio(width / height);
+                }
+            });
+
+            // Update quality value display
+            qualityRange.addEventListener('input', () => {
+                qualityValue.textContent = qualityRange.value;
+            });
+
+            // Crop and download
+            cropBtn.addEventListener('click', () => {
+                const format = outputFormat.value;
+                const quality = parseInt(qualityRange.value) / 100;
+                
+                const canvas = cropper.getCroppedCanvas();
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = `cropped-image.${format}`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }, `image/${format}`, quality);
+            });
+
+            // Helper function
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 KB';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html> 

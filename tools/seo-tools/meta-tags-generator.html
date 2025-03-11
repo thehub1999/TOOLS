@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Tags Generator - Multi-Tools</title>
+    <meta name="description" content="Generate comprehensive meta tags for your website. Create SEO-friendly meta tags, Open Graph tags, Twitter Cards, and more.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .preview-card {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .preview-card:hover {
+            border-color: #adb5bd;
+        }
+        .google-title {
+            color: #1a0dab;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .google-url {
+            color: #006621;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        .google-description {
+            color: #545454;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        .facebook-preview {
+            background-color: #f0f2f5;
+            border: 1px solid #dddfe2;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .facebook-image {
+            width: 100%;
+            height: 200px;
+            background-color: #e9ecef;
+            background-size: cover;
+            background-position: center;
+        }
+        .facebook-content {
+            padding: 1rem;
+        }
+        .facebook-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .facebook-description {
+            font-size: 0.875rem;
+            color: #65676b;
+        }
+        .twitter-preview {
+            background-color: #fff;
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .twitter-image {
+            width: 100%;
+            height: 200px;
+            background-color: #e9ecef;
+            background-size: cover;
+            background-position: center;
+        }
+        .twitter-content {
+            padding: 1rem;
+        }
+        .twitter-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .twitter-description {
+            font-size: 0.875rem;
+            color: #536471;
+        }
+        .preview-box {
+            font-family: monospace;
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .character-count {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .character-count.warning {
+            color: #ffc107;
+        }
+        .character-count.danger {
+            color: #dc3545;
+        }
+        .template-btn {
+            margin: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .meta-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .meta-section:hover {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Meta Tags Generator</h1>
+                <p class="tool-description">Generate comprehensive meta tags for your website. Create SEO-friendly meta tags, Open Graph tags, Twitter Cards, and more.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Basic Meta Tags</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="meta-section">
+                                <div class="mb-3">
+                                    <label class="form-label">Page Title</label>
+                                    <input type="text" class="form-control" id="pageTitle" maxlength="60">
+                                    <div class="character-count" id="titleCount">0/60 characters</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Meta Description</label>
+                                    <textarea class="form-control" id="metaDescription" rows="3" maxlength="160"></textarea>
+                                    <div class="character-count" id="descriptionCount">0/160 characters</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Keywords</label>
+                                    <input type="text" class="form-control" id="keywords" placeholder="keyword1, keyword2, keyword3">
+                                    <small class="text-muted">Separate keywords with commas</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Canonical URL</label>
+                                    <input type="url" class="form-control" id="canonicalUrl" placeholder="https://example.com/page">
+                                </div>
+                            </div>
+
+                            <div class="meta-section">
+                                <h6 class="mb-3">Additional Options</h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Robots</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="robotsIndex" checked>
+                                        <label class="form-check-label" for="robotsIndex">index</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="robotsFollow" checked>
+                                        <label class="form-check-label" for="robotsFollow">follow</label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Language</label>
+                                    <select class="form-select" id="language">
+                                        <option value="en">English</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="fr">French</option>
+                                        <option value="de">German</option>
+                                        <option value="it">Italian</option>
+                                        <option value="pt">Portuguese</option>
+                                        <option value="ru">Russian</option>
+                                        <option value="ja">Japanese</option>
+                                        <option value="zh">Chinese</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Author</label>
+                                    <input type="text" class="form-control" id="author">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Social Media Tags</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="meta-section">
+                                <h6 class="mb-3">Open Graph (Facebook)</h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">OG Title</label>
+                                    <input type="text" class="form-control" id="ogTitle">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">OG Description</label>
+                                    <textarea class="form-control" id="ogDescription" rows="2"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">OG Image URL</label>
+                                    <input type="url" class="form-control" id="ogImage">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">OG Type</label>
+                                    <select class="form-select" id="ogType">
+                                        <option value="website">Website</option>
+                                        <option value="article">Article</option>
+                                        <option value="product">Product</option>
+                                        <option value="profile">Profile</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="meta-section">
+                                <h6 class="mb-3">Twitter Card</h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Card Type</label>
+                                    <select class="form-select" id="twitterCard">
+                                        <option value="summary">Summary</option>
+                                        <option value="summary_large_image">Summary with Large Image</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Twitter Title</label>
+                                    <input type="text" class="form-control" id="twitterTitle">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Twitter Description</label>
+                                    <textarea class="form-control" id="twitterDescription" rows="2"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Twitter Image URL</label>
+                                    <input type="url" class="form-control" id="twitterImage">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Twitter Username</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">@</span>
+                                        <input type="text" class="form-control" id="twitterUsername">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Live Preview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-card mb-3">
+                                <h6 class="mb-2">Google Search Result Preview</h6>
+                                <div class="google-title" id="previewTitle">Your Page Title</div>
+                                <div class="google-url" id="previewUrl">example.com</div>
+                                <div class="google-description" id="previewDescription">Your meta description will appear here...</div>
+                            </div>
+
+                            <div class="preview-card mb-3">
+                                <h6 class="mb-2">Facebook Preview</h6>
+                                <div class="facebook-preview">
+                                    <div class="facebook-image" id="previewFacebookImage"></div>
+                                    <div class="facebook-content">
+                                        <div class="facebook-title" id="previewFacebookTitle">Your Page Title</div>
+                                        <div class="facebook-description" id="previewFacebookDescription">Your description will appear here...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="preview-card">
+                                <h6 class="mb-2">Twitter Preview</h6>
+                                <div class="twitter-preview">
+                                    <div class="twitter-image" id="previewTwitterImage"></div>
+                                    <div class="twitter-content">
+                                        <div class="twitter-title" id="previewTwitterTitle">Your Page Title</div>
+                                        <div class="twitter-description" id="previewTwitterDescription">Your description will appear here...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Generated Meta Tags</h5>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-primary" id="copyBtn">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                                <button class="btn btn-sm btn-success" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-box" id="metaTagsPreview">
+                                <!-- Generated meta tags will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = {
+                // Basic meta inputs
+                pageTitle: document.getElementById('pageTitle'),
+                metaDescription: document.getElementById('metaDescription'),
+                keywords: document.getElementById('keywords'),
+                canonicalUrl: document.getElementById('canonicalUrl'),
+                robotsIndex: document.getElementById('robotsIndex'),
+                robotsFollow: document.getElementById('robotsFollow'),
+                language: document.getElementById('language'),
+                author: document.getElementById('author'),
+
+                // Social media inputs
+                ogTitle: document.getElementById('ogTitle'),
+                ogDescription: document.getElementById('ogDescription'),
+                ogImage: document.getElementById('ogImage'),
+                ogType: document.getElementById('ogType'),
+                twitterCard: document.getElementById('twitterCard'),
+                twitterTitle: document.getElementById('twitterTitle'),
+                twitterDescription: document.getElementById('twitterDescription'),
+                twitterImage: document.getElementById('twitterImage'),
+                twitterUsername: document.getElementById('twitterUsername'),
+
+                // Preview elements
+                titleCount: document.getElementById('titleCount'),
+                descriptionCount: document.getElementById('descriptionCount'),
+                previewTitle: document.getElementById('previewTitle'),
+                previewUrl: document.getElementById('previewUrl'),
+                previewDescription: document.getElementById('previewDescription'),
+                previewFacebookTitle: document.getElementById('previewFacebookTitle'),
+                previewFacebookDescription: document.getElementById('previewFacebookDescription'),
+                previewFacebookImage: document.getElementById('previewFacebookImage'),
+                previewTwitterTitle: document.getElementById('previewTwitterTitle'),
+                previewTwitterDescription: document.getElementById('previewTwitterDescription'),
+                previewTwitterImage: document.getElementById('previewTwitterImage'),
+                metaTagsPreview: document.getElementById('metaTagsPreview')
+            };
+
+            const buttons = {
+                copy: document.getElementById('copyBtn'),
+                download: document.getElementById('downloadBtn')
+            };
+
+            function updateCharacterCount(element, count, maxLength) {
+                const remaining = maxLength - count;
+                const countElement = element;
+                countElement.textContent = `${count}/${maxLength} characters`;
+                countElement.className = 'character-count' + 
+                    (remaining <= 0 ? ' danger' : 
+                     remaining <= maxLength * 0.1 ? ' warning' : '');
+            }
+
+            function updatePreviews() {
+                // Update Google preview
+                elements.previewTitle.textContent = elements.pageTitle.value || 'Your Page Title';
+                elements.previewDescription.textContent = elements.metaDescription.value || 'Your meta description will appear here...';
+                elements.previewUrl.textContent = new URL(elements.canonicalUrl.value || 'https://example.com').hostname;
+
+                // Update Facebook preview
+                elements.previewFacebookTitle.textContent = elements.ogTitle.value || elements.pageTitle.value || 'Your Page Title';
+                elements.previewFacebookDescription.textContent = elements.ogDescription.value || elements.metaDescription.value || 'Your description will appear here...';
+                if (elements.ogImage.value) {
+                    elements.previewFacebookImage.style.backgroundImage = `url('${elements.ogImage.value}')`;
+                }
+
+                // Update Twitter preview
+                elements.previewTwitterTitle.textContent = elements.twitterTitle.value || elements.ogTitle.value || elements.pageTitle.value || 'Your Page Title';
+                elements.previewTwitterDescription.textContent = elements.twitterDescription.value || elements.ogDescription.value || elements.metaDescription.value || 'Your description will appear here...';
+                if (elements.twitterImage.value) {
+                    elements.previewTwitterImage.style.backgroundImage = `url('${elements.twitterImage.value}')`;
+                }
+
+                updateMetaTags();
+            }
+
+            function updateMetaTags() {
+                let metaTags = `<!-- Basic Meta Tags -->
+<title>${elements.pageTitle.value}</title>
+<meta name="description" content="${elements.metaDescription.value}">
+${elements.keywords.value ? `<meta name="keywords" content="${elements.keywords.value}">` : ''}
+${elements.canonicalUrl.value ? `<link rel="canonical" href="${elements.canonicalUrl.value}">` : ''}
+<meta name="robots" content="${elements.robotsIndex.checked ? 'index' : 'noindex'},${elements.robotsFollow.checked ? 'follow' : 'nofollow'}">
+<meta name="language" content="${elements.language.value}">
+${elements.author.value ? `<meta name="author" content="${elements.author.value}">` : ''}
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="${elements.ogType.value}">
+<meta property="og:title" content="${elements.ogTitle.value || elements.pageTitle.value}">
+<meta property="og:description" content="${elements.ogDescription.value || elements.metaDescription.value}">
+${elements.ogImage.value ? `<meta property="og:image" content="${elements.ogImage.value}">` : ''}
+${elements.canonicalUrl.value ? `<meta property="og:url" content="${elements.canonicalUrl.value}">` : ''}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="${elements.twitterCard.value}">
+<meta name="twitter:title" content="${elements.twitterTitle.value || elements.ogTitle.value || elements.pageTitle.value}">
+<meta name="twitter:description" content="${elements.twitterDescription.value || elements.ogDescription.value || elements.metaDescription.value}">
+${elements.twitterImage.value ? `<meta name="twitter:image" content="${elements.twitterImage.value}">` : ''}
+${elements.twitterUsername.value ? `<meta name="twitter:site" content="@${elements.twitterUsername.value}">` : ''}`;
+
+                elements.metaTagsPreview.textContent = metaTags;
+            }
+
+            // Event Listeners
+            elements.pageTitle.addEventListener('input', (e) => {
+                updateCharacterCount(elements.titleCount, e.target.value.length, 60);
+                updatePreviews();
+            });
+
+            elements.metaDescription.addEventListener('input', (e) => {
+                updateCharacterCount(elements.descriptionCount, e.target.value.length, 160);
+                updatePreviews();
+            });
+
+            // Add input event listeners to all form elements
+            Object.values(elements).forEach(element => {
+                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') {
+                    element.addEventListener('input', updatePreviews);
+                }
+            });
+
+            buttons.copy.addEventListener('click', () => {
+                navigator.clipboard.writeText(elements.metaTagsPreview.textContent)
+                    .then(() => alert('Meta tags copied to clipboard!'))
+                    .catch(() => alert('Failed to copy to clipboard'));
+            });
+
+            buttons.download.addEventListener('click', () => {
+                const blob = new Blob([elements.metaTagsPreview.textContent], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'meta-tags.html';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+
+            // Initialize previews
+            updatePreviews();
+        });
+    </script>
+</body>
+</html> 

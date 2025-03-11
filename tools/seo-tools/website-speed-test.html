@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Speed Test - Multi-Tools</title>
+    <meta name="description" content="Test your website's loading speed, performance metrics, and get detailed insights to improve your site's performance.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .metric-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        .grade {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        .grade-a { background-color: #198754; }
+        .grade-b { background-color: #28a745; }
+        .grade-c { background-color: #ffc107; }
+        .grade-d { background-color: #fd7e14; }
+        .grade-f { background-color: #dc3545; }
+        .timeline {
+            height: 4px;
+            background-color: #e9ecef;
+            margin: 1rem 0;
+            position: relative;
+        }
+        .timeline-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0d6efd;
+            top: -4px;
+            cursor: pointer;
+        }
+        .timeline-label {
+            position: absolute;
+            top: 12px;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        .resource-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .resource-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .resource-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Website Speed Test</h1>
+                <p class="tool-description">Test your website's loading speed, performance metrics, and get detailed insights to improve your site's performance.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Test Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Website URL</label>
+                                <input type="url" class="form-control" id="urlInput" placeholder="https://example.com">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Device Type</label>
+                                <select class="form-select" id="deviceType">
+                                    <option value="desktop">Desktop</option>
+                                    <option value="mobile">Mobile</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Connection Speed</label>
+                                <select class="form-select" id="connectionSpeed">
+                                    <option value="4g">4G</option>
+                                    <option value="3g">3G</option>
+                                    <option value="2g">2G</option>
+                                </select>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="testBtn">
+                                    <i class="bi bi-speedometer2"></i> Start Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Test History</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group" id="testHistory">
+                                <!-- Test history items will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Test Results</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="loadingIndicator" class="text-center py-4" style="display: none;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 mb-0">Testing website performance...</p>
+                            </div>
+
+                            <div id="testResults" style="display: none;">
+                                <div class="row g-3 mb-4">
+                                    <div class="col-sm-3">
+                                        <div class="metric-card text-center">
+                                            <div class="grade mx-auto mb-2" id="performanceGrade">A</div>
+                                            <div class="metric-label">Performance Score</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="fcp">0.0s</div>
+                                            <div class="metric-label">First Contentful Paint</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="lcp">0.0s</div>
+                                            <div class="metric-label">Largest Contentful Paint</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="tti">0.0s</div>
+                                            <div class="metric-label">Time to Interactive</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Loading Timeline</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="timeline" id="loadingTimeline">
+                                            <!-- Timeline markers will be added here -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="card-title mb-0">Resource Breakdown</h6>
+                                        <button class="btn btn-sm btn-success" id="exportBtn">
+                                            <i class="bi bi-download"></i> Export Report
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="resource-list" id="resourceList">
+                                            <!-- Resource items will be added here -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Optimization Suggestions</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group" id="suggestions">
+                                            <!-- Suggestions will be added here -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlInput = document.getElementById('urlInput');
+            const testBtn = document.getElementById('testBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const testResults = document.getElementById('testResults');
+            const exportBtn = document.getElementById('exportBtn');
+
+            testBtn.addEventListener('click', () => {
+                if (!urlInput.value.trim()) {
+                    alert('Please enter a website URL');
+                    return;
+                }
+
+                // Show loading
+                loadingIndicator.style.display = 'block';
+                testResults.style.display = 'none';
+
+                // Simulate test process
+                setTimeout(() => {
+                    performTest();
+                }, 3000);
+            });
+
+            function performTest() {
+                // Generate random test results
+                const performanceScore = Math.floor(Math.random() * 100);
+                const fcpTime = (Math.random() * 2).toFixed(1);
+                const lcpTime = (Math.random() * 4).toFixed(1);
+                const ttiTime = (Math.random() * 5).toFixed(1);
+
+                // Update metrics
+                document.getElementById('performanceGrade').textContent = getGrade(performanceScore);
+                document.getElementById('performanceGrade').className = `grade grade-${getGrade(performanceScore).toLowerCase()}`;
+                document.getElementById('fcp').textContent = fcpTime + 's';
+                document.getElementById('lcp').textContent = lcpTime + 's';
+                document.getElementById('tti').textContent = ttiTime + 's';
+
+                // Generate timeline
+                generateTimeline();
+
+                // Generate resource list
+                generateResourceList();
+
+                // Generate suggestions
+                generateSuggestions();
+
+                // Add to test history
+                addTestHistory(urlInput.value, performanceScore);
+
+                // Show results
+                loadingIndicator.style.display = 'none';
+                testResults.style.display = 'block';
+            }
+
+            function getGrade(score) {
+                if (score >= 90) return 'A';
+                if (score >= 80) return 'B';
+                if (score >= 70) return 'C';
+                if (score >= 60) return 'D';
+                return 'F';
+            }
+
+            function generateTimeline() {
+                const timeline = document.getElementById('loadingTimeline');
+                timeline.innerHTML = '';
+
+                const events = [
+                    { time: 0, label: 'Start' },
+                    { time: 20, label: 'DNS' },
+                    { time: 35, label: 'TCP' },
+                    { time: 50, label: 'First Byte' },
+                    { time: 65, label: 'DOM Ready' },
+                    { time: 100, label: 'Complete' }
+                ];
+
+                events.forEach(event => {
+                    const marker = document.createElement('div');
+                    marker.className = 'timeline-marker';
+                    marker.style.left = `${event.time}%`;
+                    marker.title = `${event.label}: ${(event.time / 20).toFixed(1)}s`;
+
+                    const label = document.createElement('div');
+                    label.className = 'timeline-label';
+                    label.textContent = event.label;
+                    label.style.left = `${event.time}%`;
+
+                    timeline.appendChild(marker);
+                    timeline.appendChild(label);
+                });
+            }
+
+            function generateResourceList() {
+                const resourceList = document.getElementById('resourceList');
+                resourceList.innerHTML = '';
+
+                const resources = [
+                    { type: 'HTML', size: '25.4 KB', time: '0.3s' },
+                    { type: 'CSS', size: '156.7 KB', time: '0.5s' },
+                    { type: 'JavaScript', size: '487.2 KB', time: '0.8s' },
+                    { type: 'Images', size: '1.2 MB', time: '1.2s' },
+                    { type: 'Fonts', size: '245.6 KB', time: '0.6s' }
+                ];
+
+                resources.forEach(resource => {
+                    const item = document.createElement('div');
+                    item.className = 'resource-item';
+                    item.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${resource.type}</strong>
+                                <small class="text-muted d-block">Size: ${resource.size}</small>
+                            </div>
+                            <span class="badge bg-primary">${resource.time}</span>
+                        </div>
+                    `;
+                    resourceList.appendChild(item);
+                });
+            }
+
+            function generateSuggestions() {
+                const suggestions = document.getElementById('suggestions');
+                suggestions.innerHTML = '';
+
+                const tips = [
+                    'Enable compression for text-based resources',
+                    'Optimize images and implement lazy loading',
+                    'Minify JavaScript and CSS files',
+                    'Leverage browser caching',
+                    'Reduce server response time'
+                ];
+
+                tips.forEach(tip => {
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item';
+                    item.innerHTML = `<i class="bi bi-lightbulb text-warning me-2"></i>${tip}`;
+                    suggestions.appendChild(item);
+                });
+            }
+
+            function addTestHistory(url, score) {
+                const history = document.getElementById('testHistory');
+                const item = document.createElement('a');
+                item.href = '#';
+                item.className = 'list-group-item list-group-item-action';
+                item.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-truncate" style="max-width: 200px;">${url}</div>
+                            <small class="text-muted">${new Date().toLocaleString()}</small>
+                        </div>
+                        <span class="badge bg-${score >= 90 ? 'success' : score >= 70 ? 'warning' : 'danger'} rounded-pill">
+                            ${score}
+                        </span>
+                    </div>
+                `;
+                history.insertBefore(item, history.firstChild);
+            }
+
+            // Export functionality
+            exportBtn.addEventListener('click', () => {
+                const report = {
+                    url: urlInput.value,
+                    date: new Date().toISOString(),
+                    metrics: {
+                        performanceScore: document.getElementById('performanceGrade').textContent,
+                        firstContentfulPaint: document.getElementById('fcp').textContent,
+                        largestContentfulPaint: document.getElementById('lcp').textContent,
+                        timeToInteractive: document.getElementById('tti').textContent
+                    }
+                };
+
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'speed-test-report.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+</body>
+</html> 

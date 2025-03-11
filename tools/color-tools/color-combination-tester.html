@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Combination Tester - Free Online Tool</title>
+    <meta name="description" content="Free online tool to test and preview color combinations for web design, branding, and UI/UX.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tester-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .color-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .color-input {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+        .color-preview {
+            width: 100%;
+            height: 50px;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+        }
+        .preview-section {
+            margin-bottom: 2rem;
+        }
+        .preview-box {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .preview-header {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .preview-content {
+            padding: 2rem;
+        }
+        .preview-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .preview-text {
+            margin: 1rem 0;
+        }
+        .preview-text p {
+            margin-bottom: 0.5rem;
+        }
+        .color-scheme {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .scheme-color {
+            aspect-ratio: 1;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            position: relative;
+            cursor: pointer;
+        }
+        .scheme-color:hover::after {
+            content: attr(data-color);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 1;
+        }
+        .accessibility-info {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .contrast-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        .pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">Color Combination Tester</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="tester-container">
+            <!-- Color Inputs -->
+            <div class="color-inputs">
+                <div class="color-input">
+                    <h5>Background Color</h5>
+                    <div class="color-preview" id="bgColorPreview"></div>
+                    <div class="input-group">
+                        <input type="color" class="form-control form-control-color" 
+                               id="bgColorPicker" value="#ffffff"
+                               onchange="updateColors('bg', this.value)">
+                        <input type="text" class="form-control" 
+                               id="bgColorInput" value="#ffffff"
+                               onchange="updateColors('bg', this.value)">
+                    </div>
+                </div>
+                <div class="color-input">
+                    <h5>Text Color</h5>
+                    <div class="color-preview" id="textColorPreview"></div>
+                    <div class="input-group">
+                        <input type="color" class="form-control form-control-color" 
+                               id="textColorPicker" value="#000000"
+                               onchange="updateColors('text', this.value)">
+                        <input type="text" class="form-control" 
+                               id="textColorInput" value="#000000"
+                               onchange="updateColors('text', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessibility Information -->
+            <div class="accessibility-info">
+                <h5>Contrast Ratio: <span id="contrastRatio">21</span></h5>
+                <div class="mt-2">
+                    <span>WCAG AA: 
+                        <span id="wcagAA" class="contrast-badge pass">Pass</span>
+                    </span>
+                    <span class="ms-3">WCAG AAA: 
+                        <span id="wcagAAA" class="contrast-badge pass">Pass</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h5 class="mb-3">Live Preview</h5>
+                <div class="preview-box" id="previewBox">
+                    <div class="preview-header">
+                        <h4>Sample Header</h4>
+                        <div class="preview-buttons">
+                            <button class="btn btn-primary">Primary Button</button>
+                            <button class="btn btn-outline-primary">Secondary Button</button>
+                        </div>
+                    </div>
+                    <div class="preview-content">
+                        <div class="preview-text">
+                            <h2>Large Heading</h2>
+                            <p>This is a sample paragraph with normal text size. The quick brown fox jumps over the lazy dog.</p>
+                            <p><small>This is smaller text that might be used for captions or footnotes.</small></p>
+                            <p><strong>This text is bold to demonstrate different font weights.</strong></p>
+                        </div>
+                        <div class="preview-buttons">
+                            <button class="btn btn-sm btn-primary">Small Button</button>
+                            <button class="btn btn-sm btn-outline-primary">Small Outline</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggested Color Schemes -->
+            <h5 class="mb-3">Suggested Color Schemes</h5>
+            <div class="color-scheme" id="colorScheme"></div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // DOM Elements
+        const bgColorPicker = document.getElementById('bgColorPicker');
+        const bgColorInput = document.getElementById('bgColorInput');
+        const bgColorPreview = document.getElementById('bgColorPreview');
+        const textColorPicker = document.getElementById('textColorPicker');
+        const textColorInput = document.getElementById('textColorInput');
+        const textColorPreview = document.getElementById('textColorPreview');
+        const previewBox = document.getElementById('previewBox');
+        const contrastRatio = document.getElementById('contrastRatio');
+        const wcagAA = document.getElementById('wcagAA');
+        const wcagAAA = document.getElementById('wcagAAA');
+        const colorScheme = document.getElementById('colorScheme');
+
+        // State
+        let currentColors = {
+            bg: '#ffffff',
+            text: '#000000'
+        };
+
+        // Initialize
+        updatePreview();
+        generateColorSchemes();
+
+        function updateColors(type, color) {
+            // Validate color format
+            if (!isValidColor(color)) {
+                showToast('Invalid color format');
+                return;
+            }
+
+            color = color.toLowerCase();
+            currentColors[type] = color;
+
+            // Update inputs
+            const picker = type === 'bg' ? bgColorPicker : textColorPicker;
+            const input = type === 'bg' ? bgColorInput : textColorInput;
+            const preview = type === 'bg' ? bgColorPreview : textColorPreview;
+
+            picker.value = color;
+            input.value = color;
+            preview.style.backgroundColor = color;
+
+            updatePreview();
+            generateColorSchemes();
+        }
+
+        function updatePreview() {
+            // Update preview box
+            previewBox.style.backgroundColor = currentColors.bg;
+            previewBox.style.color = currentColors.text;
+
+            // Update contrast information
+            const ratio = calculateContrastRatio(currentColors.bg, currentColors.text);
+            contrastRatio.textContent = ratio.toFixed(2);
+
+            // Update WCAG badges
+            const passesAA = ratio >= 4.5;
+            const passesAAA = ratio >= 7;
+
+            wcagAA.className = `contrast-badge ${passesAA ? 'pass' : 'fail'}`;
+            wcagAA.textContent = passesAA ? 'Pass' : 'Fail';
+
+            wcagAAA.className = `contrast-badge ${passesAAA ? 'pass' : 'fail'}`;
+            wcagAAA.textContent = passesAAA ? 'Pass' : 'Fail';
+        }
+
+        function generateColorSchemes() {
+            const baseColor = currentColors.bg;
+            const rgb = hexToRgb(baseColor);
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+            // Generate different variations
+            const schemes = [
+                // Monochromatic
+                [
+                    hslToHex(hsl.h, hsl.s, Math.max(0, hsl.l - 40)),
+                    hslToHex(hsl.h, hsl.s, Math.max(0, hsl.l - 20)),
+                    baseColor,
+                    hslToHex(hsl.h, hsl.s, Math.min(100, hsl.l + 20)),
+                    hslToHex(hsl.h, hsl.s, Math.min(100, hsl.l + 40))
+                ],
+                // Complementary
+                [
+                    baseColor,
+                    hslToHex((hsl.h + 180) % 360, hsl.s, hsl.l)
+                ],
+                // Analogous
+                [
+                    hslToHex((hsl.h - 30 + 360) % 360, hsl.s, hsl.l),
+                    baseColor,
+                    hslToHex((hsl.h + 30) % 360, hsl.s, hsl.l)
+                ],
+                // Triadic
+                [
+                    baseColor,
+                    hslToHex((hsl.h + 120) % 360, hsl.s, hsl.l),
+                    hslToHex((hsl.h + 240) % 360, hsl.s, hsl.l)
+                ]
+            ];
+
+            // Update color scheme display
+            colorScheme.innerHTML = schemes.map(scheme => 
+                scheme.map(color => `
+                    <div class="scheme-color" 
+                         style="background-color: ${color}"
+                         data-color="${color}"
+                         onclick="copyColor('${color}')">
+                    </div>
+                `).join('')
+            ).join('');
+        }
+
+        function calculateContrastRatio(color1, color2) {
+            const l1 = getLuminance(hexToRgb(color1));
+            const l2 = getLuminance(hexToRgb(color2));
+            const lighter = Math.max(l1, l2);
+            const darker = Math.min(l1, l2);
+            return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function getLuminance(rgb) {
+            const [r, g, b] = [rgb.r, rgb.g, rgb.b].map(c => {
+                c = c / 255;
+                return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+            });
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        }
+
+        function isValidColor(color) {
+            return /^#[0-9A-Fa-f]{6}$/.test(color);
+        }
+
+        function copyColor(color) {
+            navigator.clipboard.writeText(color)
+                .then(() => showToast('Color copied to clipboard!'))
+                .catch(err => console.error('Failed to copy:', err));
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function hslToHex(h, s, l) {
+            l /= 100;
+            const a = s * Math.min(l, 1 - l) / 100;
+            const f = n => {
+                const k = (n + h / 30) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast position-fixed bottom-0 end-0 m-3';
+            toast.innerHTML = `
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+    </script>
+</body>
+</html> 

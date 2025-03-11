@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter - Multi-Tools</title>
+    <meta name="description" content="Convert between different units of measurement. Length, weight, temperature, and more. Free online unit converter tool.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Unit Converter</h1>
+                <p class="tool-description">Convert between different units of measurement. Supports length, weight, temperature, area, volume, and more.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form id="converterForm">
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Category</label>
+                                    <select class="form-select" id="category">
+                                        <option value="length">Length</option>
+                                        <option value="weight">Weight</option>
+                                        <option value="temperature">Temperature</option>
+                                        <option value="area">Area</option>
+                                        <option value="volume">Volume</option>
+                                        <option value="speed">Speed</option>
+                                        <option value="time">Time</option>
+                                        <option value="digital">Digital Storage</option>
+                                    </select>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="fromValue" class="form-label">From</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="fromValue" value="1" step="any">
+                                            <select class="form-select" id="fromUnit"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="toValue" class="form-label">To</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="toValue" readonly>
+                                            <select class="form-select" id="toUnit"></select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="button" class="btn btn-primary" id="convertBtn">
+                                        <i class="bi bi-arrow-left-right"></i> Convert
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="swapBtn">
+                                        <i class="bi bi-arrow-repeat"></i> Swap Units
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="mt-4">
+                                <div id="conversionFormula" class="text-muted small">
+                                    <!-- Conversion formula will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>Common Conversions</h5>
+                        <div class="row g-2" id="commonConversions">
+                            <!-- Common conversions will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Unit Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="unitInfo">
+                                <!-- Unit information will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const category = document.getElementById('category');
+            const fromValue = document.getElementById('fromValue');
+            const toValue = document.getElementById('toValue');
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            const convertBtn = document.getElementById('convertBtn');
+            const swapBtn = document.getElementById('swapBtn');
+            const conversionFormula = document.getElementById('conversionFormula');
+            const unitInfo = document.getElementById('unitInfo');
+            const commonConversions = document.getElementById('commonConversions');
+
+            // Unit definitions
+            const units = {
+                length: {
+                    meters: { factor: 1, name: 'Meters (m)', info: 'The base unit of length in the metric system.' },
+                    kilometers: { factor: 1000, name: 'Kilometers (km)', info: 'Equal to 1000 meters.' },
+                    centimeters: { factor: 0.01, name: 'Centimeters (cm)', info: 'Equal to 1/100 of a meter.' },
+                    millimeters: { factor: 0.001, name: 'Millimeters (mm)', info: 'Equal to 1/1000 of a meter.' },
+                    inches: { factor: 0.0254, name: 'Inches (in)', info: 'Equal to 2.54 centimeters.' },
+                    feet: { factor: 0.3048, name: 'Feet (ft)', info: 'Equal to 12 inches or 0.3048 meters.' },
+                    yards: { factor: 0.9144, name: 'Yards (yd)', info: 'Equal to 3 feet or 0.9144 meters.' },
+                    miles: { factor: 1609.344, name: 'Miles (mi)', info: 'Equal to 1609.344 meters.' }
+                },
+                weight: {
+                    grams: { factor: 1, name: 'Grams (g)', info: 'The base unit of mass in the metric system.' },
+                    kilograms: { factor: 1000, name: 'Kilograms (kg)', info: 'Equal to 1000 grams.' },
+                    milligrams: { factor: 0.001, name: 'Milligrams (mg)', info: 'Equal to 1/1000 of a gram.' },
+                    pounds: { factor: 453.59237, name: 'Pounds (lb)', info: 'Equal to 453.59237 grams.' },
+                    ounces: { factor: 28.349523125, name: 'Ounces (oz)', info: 'Equal to 28.35 grams.' }
+                },
+                temperature: {
+                    celsius: { name: 'Celsius (°C)', info: 'The most commonly used temperature scale.' },
+                    fahrenheit: { name: 'Fahrenheit (°F)', info: 'Used primarily in the United States.' },
+                    kelvin: { name: 'Kelvin (K)', info: 'The base unit of temperature in the metric system.' }
+                }
+                // Add more categories as needed
+            };
+
+            // Update unit dropdowns when category changes
+            category.addEventListener('change', () => {
+                const selectedCategory = category.value;
+                const categoryUnits = units[selectedCategory];
+
+                // Clear existing options
+                fromUnit.innerHTML = '';
+                toUnit.innerHTML = '';
+
+                // Add new options
+                Object.keys(categoryUnits).forEach(unit => {
+                    const option1 = new Option(categoryUnits[unit].name, unit);
+                    const option2 = new Option(categoryUnits[unit].name, unit);
+                    fromUnit.add(option1);
+                    toUnit.add(option2);
+                });
+
+                // Set default "to" unit to something different than "from" unit
+                if (toUnit.options.length > 1) {
+                    toUnit.selectedIndex = 1;
+                }
+
+                updateUnitInfo();
+                convert();
+            });
+
+            // Convert units
+            function convert() {
+                const selectedCategory = category.value;
+                const value = parseFloat(fromValue.value);
+
+                if (selectedCategory === 'temperature') {
+                    // Special handling for temperature
+                    toValue.value = convertTemperature(
+                        value,
+                        fromUnit.value,
+                        toUnit.value
+                    ).toFixed(2);
+                } else {
+                    // Standard conversion using factors
+                    const fromFactor = units[selectedCategory][fromUnit.value].factor;
+                    const toFactor = units[selectedCategory][toUnit.value].factor;
+                    const result = (value * fromFactor) / toFactor;
+                    toValue.value = result.toFixed(4);
+                }
+
+                updateConversionFormula();
+            }
+
+            // Temperature conversion
+            function convertTemperature(value, from, to) {
+                let celsius;
+
+                // Convert to Celsius first
+                switch(from) {
+                    case 'celsius':
+                        celsius = value;
+                        break;
+                    case 'fahrenheit':
+                        celsius = (value - 32) * 5/9;
+                        break;
+                    case 'kelvin':
+                        celsius = value - 273.15;
+                        break;
+                }
+
+                // Convert from Celsius to target unit
+                switch(to) {
+                    case 'celsius':
+                        return celsius;
+                    case 'fahrenheit':
+                        return (celsius * 9/5) + 32;
+                    case 'kelvin':
+                        return celsius + 273.15;
+                }
+            }
+
+            // Update conversion formula display
+            function updateConversionFormula() {
+                const selectedCategory = category.value;
+                const value = parseFloat(fromValue.value);
+
+                if (selectedCategory === 'temperature') {
+                    // Display temperature conversion formula
+                    let formula = `${value} ${fromUnit.value} = `;
+                    if (fromUnit.value === 'celsius' && toUnit.value === 'fahrenheit') {
+                        formula += `(${value} × 9/5) + 32 = ${toValue.value}°F`;
+                    } else if (fromUnit.value === 'fahrenheit' && toUnit.value === 'celsius') {
+                        formula += `(${value} - 32) × 5/9 = ${toValue.value}°C`;
+                    } else {
+                        formula += `${toValue.value} ${toUnit.value}`;
+                    }
+                    conversionFormula.textContent = formula;
+                } else {
+                    // Display standard conversion formula
+                    const fromFactor = units[selectedCategory][fromUnit.value].factor;
+                    const toFactor = units[selectedCategory][toUnit.value].factor;
+                    conversionFormula.textContent = 
+                        `${value} ${fromUnit.value} × (${toFactor}/${fromFactor}) = ${toValue.value} ${toUnit.value}`;
+                }
+            }
+
+            // Update unit information
+            function updateUnitInfo() {
+                const selectedCategory = category.value;
+                const selectedUnit = fromUnit.value;
+                const unitDetails = units[selectedCategory][selectedUnit];
+
+                unitInfo.innerHTML = `
+                    <h6>${unitDetails.name}</h6>
+                    <p class="small mb-0">${unitDetails.info}</p>
+                `;
+            }
+
+            // Event listeners
+            convertBtn.addEventListener('click', convert);
+            fromValue.addEventListener('input', convert);
+            fromUnit.addEventListener('change', () => {
+                updateUnitInfo();
+                convert();
+            });
+            toUnit.addEventListener('change', convert);
+
+            swapBtn.addEventListener('click', () => {
+                const tempUnit = fromUnit.value;
+                fromUnit.value = toUnit.value;
+                toUnit.value = tempUnit;
+                updateUnitInfo();
+                convert();
+            });
+
+            // Initialize
+            category.dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+</html> 

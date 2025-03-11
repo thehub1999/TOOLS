@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicode Converter - Free Online Tool</title>
+    <meta name="description" content="Free online Unicode converter tool. Convert text to and from various Unicode formats.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .converter-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .options-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .char-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .format-option {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .format-option:hover {
+            background-color: #e9ecef;
+        }
+        .format-option.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">Unicode Converter</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="converter-card">
+                    <!-- Input Section -->
+                    <div class="options-section mb-4">
+                        <h5 class="mb-3">Input</h5>
+                        <textarea class="form-control input-output mb-3" id="input" rows="5" 
+                            placeholder="Enter text to convert..."></textarea>
+                        
+                        <!-- Format Selection -->
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <h6>From Format:</h6>
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action format-option active" 
+                                        data-format="text" onclick="setFromFormat(this)">Plain Text</a>
+                                    <a href="#" class="list-group-item list-group-item-action format-option" 
+                                        data-format="hex" onclick="setFromFormat(this)">Hexadecimal (\u0041)</a>
+                                    <a href="#" class="list-group-item list-group-item-action format-option" 
+                                        data-format="decimal" onclick="setFromFormat(this)">Decimal (&#65;)</a>
+                                    <a href="#" class="list-group-item list-group-item-action format-option" 
+                                        data-format="html" onclick="setFromFormat(this)">HTML Entities (&amp;#65;)</a>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>To Format:</h6>
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action format-option" 
+                                        data-format="text" onclick="setToFormat(this)">Plain Text</a>
+                                    <a href="#" class="list-group-item list-group-item-action format-option active" 
+                                        data-format="hex" onclick="setToFormat(this)">Hexadecimal (\u0041)</a>
+                                    <a href="#" class="list-group-item list-group-item-action format-option" 
+                                        data-format="decimal" onclick="setToFormat(this)">Decimal (&#65;)</a>
+                                    <a href="#" class="list-group-item list-group-item-action format-option" 
+                                        data-format="html" onclick="setToFormat(this)">HTML Entities (&amp;#65;)</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-4">
+                        <button class="btn btn-primary" onclick="convert()">Convert</button>
+                        <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+                    </div>
+
+                    <!-- Output Section -->
+                    <div class="options-section">
+                        <h5 class="mb-3">Output</h5>
+                        <textarea class="form-control input-output mb-3" id="output" rows="5" readonly></textarea>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-success" onclick="copyOutput()">Copy Output</button>
+                        </div>
+                    </div>
+
+                    <!-- Character Info -->
+                    <div class="options-section" id="charInfo" style="display: none;">
+                        <h5 class="mb-3">Character Information</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Character</th>
+                                        <th>Unicode</th>
+                                        <th>Hex</th>
+                                        <th>Decimal</th>
+                                        <th>HTML Entity</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="charInfoTable">
+                                    <!-- Character information will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const charInfo = document.getElementById('charInfo');
+        const charInfoTable = document.getElementById('charInfoTable');
+
+        let fromFormat = 'text';
+        let toFormat = 'hex';
+
+        function setFromFormat(element) {
+            document.querySelectorAll('.format-option').forEach(el => {
+                if (el.parentElement === element.parentElement) {
+                    el.classList.remove('active');
+                }
+            });
+            element.classList.add('active');
+            fromFormat = element.dataset.format;
+        }
+
+        function setToFormat(element) {
+            document.querySelectorAll('.format-option').forEach(el => {
+                if (el.parentElement === element.parentElement) {
+                    el.classList.remove('active');
+                }
+            });
+            element.classList.add('active');
+            toFormat = element.dataset.format;
+        }
+
+        function convert() {
+            if (!input.value) {
+                alert('Please enter text to convert');
+                return;
+            }
+
+            try {
+                // First convert input to plain text
+                let text = input.value;
+                if (fromFormat !== 'text') {
+                    text = fromFormatToText(text, fromFormat);
+                }
+
+                // Then convert to target format
+                output.value = textToFormat(text, toFormat);
+
+                // Update character information
+                updateCharInfo(text);
+            } catch (e) {
+                alert('Error converting text: ' + e.message);
+            }
+        }
+
+        function fromFormatToText(input, format) {
+            switch (format) {
+                case 'hex':
+                    return input.replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => 
+                        String.fromCharCode(parseInt(hex, 16)));
+                case 'decimal':
+                    return input.replace(/&#(\d+);/g, (match, dec) => 
+                        String.fromCharCode(parseInt(dec, 10)));
+                case 'html':
+                    const temp = document.createElement('div');
+                    temp.innerHTML = input;
+                    return temp.textContent;
+                default:
+                    return input;
+            }
+        }
+
+        function textToFormat(text, format) {
+            switch (format) {
+                case 'text':
+                    return text;
+                case 'hex':
+                    return Array.from(text).map(char => 
+                        '\\u' + char.charCodeAt(0).toString(16).padStart(4, '0')).join('');
+                case 'decimal':
+                    return Array.from(text).map(char => 
+                        '&#' + char.charCodeAt(0) + ';').join('');
+                case 'html':
+                    return Array.from(text).map(char => 
+                        '&amp;#' + char.charCodeAt(0) + ';').join('');
+                default:
+                    return text;
+            }
+        }
+
+        function updateCharInfo(text) {
+            charInfoTable.innerHTML = '';
+            if (!text) {
+                charInfo.style.display = 'none';
+                return;
+            }
+
+            Array.from(text).forEach(char => {
+                const code = char.charCodeAt(0);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${char}</td>
+                    <td>U+${code.toString(16).toUpperCase().padStart(4, '0')}</td>
+                    <td>\\u${code.toString(16).padStart(4, '0')}</td>
+                    <td>&#${code};</td>
+                    <td>&amp;#${code};</td>
+                `;
+                charInfoTable.appendChild(row);
+            });
+
+            charInfo.style.display = 'block';
+        }
+
+        function copyOutput() {
+            output.select();
+            document.execCommand('copy');
+            alert('Output copied to clipboard!');
+        }
+
+        function clearAll() {
+            input.value = '';
+            output.value = '';
+            charInfo.style.display = 'none';
+            charInfoTable.innerHTML = '';
+        }
+
+        // Auto-convert on input
+        input.addEventListener('input', () => {
+            if (input.value) {
+                convert();
+            } else {
+                clearAll();
+            }
+        });
+    </script>
+</body>
+</html> 

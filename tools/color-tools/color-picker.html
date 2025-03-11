@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Picker - Free Online Tool</title>
+    <meta name="description" content="Free online color picker with advanced features like color history, format conversion, and color adjustments.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .color-picker-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .color-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
+            position: relative;
+            overflow: hidden;
+        }
+        .color-sliders {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .slider-label {
+            width: 80px;
+            font-weight: 500;
+        }
+        .slider-value {
+            width: 60px;
+            text-align: right;
+        }
+        .color-formats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .format-box {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+        .format-box h5 {
+            margin-bottom: 0.5rem;
+        }
+        .format-value {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            word-break: break-all;
+        }
+        .color-history {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .history-color {
+            width: 100%;
+            padding-bottom: 100%;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            position: relative;
+        }
+        .history-color:hover::after {
+            content: attr(data-color);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 1;
+        }
+        .eyedropper-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">Color Picker</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="color-picker-container">
+            <!-- Color Preview -->
+            <div class="color-preview" id="colorPreview"></div>
+
+            <!-- Eyedropper Tool -->
+            <div class="eyedropper-area">
+                <button class="btn btn-outline-primary" onclick="activateEyedropper()">
+                    <i class="bi bi-eyedropper"></i> Pick Color from Screen
+                </button>
+                <span class="text-muted">Click to pick a color from anywhere on your screen</span>
+            </div>
+
+            <!-- Color Sliders -->
+            <div class="color-sliders">
+                <!-- RGB Sliders -->
+                <div class="slider-group">
+                    <span class="slider-label">Red</span>
+                    <input type="range" class="form-range flex-grow-1" min="0" max="255" value="0" 
+                           oninput="updateColor('r', this.value)">
+                    <span class="slider-value" id="redValue">0</span>
+                </div>
+                <div class="slider-group">
+                    <span class="slider-label">Green</span>
+                    <input type="range" class="form-range flex-grow-1" min="0" max="255" value="0"
+                           oninput="updateColor('g', this.value)">
+                    <span class="slider-value" id="greenValue">0</span>
+                </div>
+                <div class="slider-group">
+                    <span class="slider-label">Blue</span>
+                    <input type="range" class="form-range flex-grow-1" min="0" max="255" value="0"
+                           oninput="updateColor('b', this.value)">
+                    <span class="slider-value" id="blueValue">0</span>
+                </div>
+
+                <!-- HSL Sliders -->
+                <div class="slider-group">
+                    <span class="slider-label">Hue</span>
+                    <input type="range" class="form-range flex-grow-1" min="0" max="360" value="0"
+                           oninput="updateColor('h', this.value)">
+                    <span class="slider-value" id="hueValue">0</span>
+                </div>
+                <div class="slider-group">
+                    <span class="slider-label">Saturation</span>
+                    <input type="range" class="form-range flex-grow-1" min="0" max="100" value="0"
+                           oninput="updateColor('s', this.value)">
+                    <span class="slider-value" id="saturationValue">0</span>
+                </div>
+                <div class="slider-group">
+                    <span class="slider-label">Lightness</span>
+                    <input type="range" class="form-range flex-grow-1" min="0" max="100" value="50"
+                           oninput="updateColor('l', this.value)">
+                    <span class="slider-value" id="lightnessValue">50</span>
+                </div>
+            </div>
+
+            <!-- Color Formats -->
+            <div class="color-formats">
+                <div class="format-box">
+                    <h5>HEX</h5>
+                    <div class="format-value" id="hexValue">#000000</div>
+                    <button class="btn btn-outline-secondary w-100" onclick="copyFormat('hex')">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+                <div class="format-box">
+                    <h5>RGB</h5>
+                    <div class="format-value" id="rgbValue">rgb(0, 0, 0)</div>
+                    <button class="btn btn-outline-secondary w-100" onclick="copyFormat('rgb')">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+                <div class="format-box">
+                    <h5>HSL</h5>
+                    <div class="format-value" id="hslValue">hsl(0, 0%, 0%)</div>
+                    <button class="btn btn-outline-secondary w-100" onclick="copyFormat('hsl')">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+            </div>
+
+            <!-- Color History -->
+            <h5 class="mb-3">Color History</h5>
+            <div class="color-history" id="colorHistory"></div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // DOM Elements
+        const colorPreview = document.getElementById('colorPreview');
+        const colorHistory = document.getElementById('colorHistory');
+
+        // State
+        let currentColor = {
+            r: 0, g: 0, b: 0,
+            h: 0, s: 0, l: 50
+        };
+        let colorHistoryList = [];
+        const maxHistorySize = 20;
+
+        // Initialize
+        updateColorDisplay();
+
+        function updateColor(component, value) {
+            value = parseInt(value);
+            
+            if (['r', 'g', 'b'].includes(component)) {
+                currentColor[component] = value;
+                const hsl = rgbToHsl(currentColor.r, currentColor.g, currentColor.b);
+                currentColor.h = hsl.h;
+                currentColor.s = hsl.s;
+                currentColor.l = hsl.l;
+            } else {
+                currentColor[component] = value;
+                const rgb = hslToRgb(currentColor.h, currentColor.s, currentColor.l);
+                currentColor.r = rgb.r;
+                currentColor.g = rgb.g;
+                currentColor.b = rgb.b;
+            }
+
+            updateColorDisplay();
+            addToHistory(rgbToHex(currentColor.r, currentColor.g, currentColor.b));
+        }
+
+        function updateColorDisplay() {
+            // Update preview
+            colorPreview.style.backgroundColor = `rgb(${currentColor.r}, ${currentColor.g}, ${currentColor.b})`;
+
+            // Update RGB values
+            document.getElementById('redValue').textContent = currentColor.r;
+            document.getElementById('greenValue').textContent = currentColor.g;
+            document.getElementById('blueValue').textContent = currentColor.b;
+
+            // Update HSL values
+            document.getElementById('hueValue').textContent = currentColor.h;
+            document.getElementById('saturationValue').textContent = currentColor.s;
+            document.getElementById('lightnessValue').textContent = currentColor.l;
+
+            // Update format displays
+            document.getElementById('hexValue').textContent = rgbToHex(currentColor.r, currentColor.g, currentColor.b);
+            document.getElementById('rgbValue').textContent = `rgb(${currentColor.r}, ${currentColor.g}, ${currentColor.b})`;
+            document.getElementById('hslValue').textContent = `hsl(${currentColor.h}, ${currentColor.s}%, ${currentColor.l}%)`;
+
+            // Update slider positions
+            document.querySelectorAll('.color-sliders input').forEach(slider => {
+                const component = slider.parentElement.querySelector('.slider-label').textContent.toLowerCase().charAt(0);
+                slider.value = currentColor[component];
+            });
+        }
+
+        function addToHistory(color) {
+            if (!colorHistoryList.includes(color)) {
+                colorHistoryList.unshift(color);
+                if (colorHistoryList.length > maxHistorySize) {
+                    colorHistoryList.pop();
+                }
+                updateHistoryDisplay();
+            }
+        }
+
+        function updateHistoryDisplay() {
+            colorHistory.innerHTML = colorHistoryList.map(color => `
+                <div class="history-color" 
+                     style="background-color: ${color}"
+                     data-color="${color}"
+                     onclick="setColorFromHistory('${color}')">
+                </div>
+            `).join('');
+        }
+
+        function setColorFromHistory(color) {
+            const rgb = hexToRgb(color);
+            currentColor.r = rgb.r;
+            currentColor.g = rgb.g;
+            currentColor.b = rgb.b;
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            currentColor.h = hsl.h;
+            currentColor.s = hsl.s;
+            currentColor.l = hsl.l;
+            updateColorDisplay();
+        }
+
+        function copyFormat(format) {
+            let text;
+            switch (format) {
+                case 'hex':
+                    text = document.getElementById('hexValue').textContent;
+                    break;
+                case 'rgb':
+                    text = document.getElementById('rgbValue').textContent;
+                    break;
+                case 'hsl':
+                    text = document.getElementById('hslValue').textContent;
+                    break;
+            }
+            
+            navigator.clipboard.writeText(text)
+                .then(() => showToast(`${format.toUpperCase()} color code copied!`))
+                .catch(err => console.error('Failed to copy:', err));
+        }
+
+        function activateEyedropper() {
+            if (!window.EyeDropper) {
+                showToast('Eyedropper is not supported in your browser');
+                return;
+            }
+
+            const eyeDropper = new EyeDropper();
+            eyeDropper.open()
+                .then(result => {
+                    const color = result.sRGBHex;
+                    const rgb = hexToRgb(color);
+                    currentColor.r = rgb.r;
+                    currentColor.g = rgb.g;
+                    currentColor.b = rgb.b;
+                    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+                    currentColor.h = hsl.h;
+                    currentColor.s = hsl.s;
+                    currentColor.l = hsl.l;
+                    updateColorDisplay();
+                    addToHistory(color);
+                })
+                .catch(err => {
+                    if (err.name === 'AbortError') {
+                        showToast('Color picking was cancelled');
+                    } else {
+                        console.error(err);
+                        showToast('An error occurred while picking the color');
+                    }
+                });
+        }
+
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function hslToRgb(h, s, l) {
+            h /= 360;
+            s /= 100;
+            l /= 100;
+
+            let r, g, b;
+
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast position-fixed bottom-0 end-0 m-3';
+            toast.innerHTML = `
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlink Checker - Multi-Tools</title>
+    <meta name="description" content="Analyze your website's backlinks. Check domain authority, link metrics, and discover new link opportunities.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .metric-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            background-color: #e9ecef;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #0d6efd;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        .backlink-card {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .backlink-card:hover {
+            background-color: #f8f9fa;
+        }
+        .domain-authority {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .da-high {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .da-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .da-low {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .link-type {
+            display: inline-block;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        .link-dofollow {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        .link-nofollow {
+            background-color: #e2e3e5;
+            color: #41464b;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+        .filter-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .filter-section:hover {
+            background-color: #e9ecef;
+        }
+        .progress-thin {
+            height: 4px;
+        }
+        .anchor-text {
+            display: inline-block;
+            padding: 0.125rem 0.375rem;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            margin: 0.125rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Backlink Checker</h1>
+                <p class="tool-description">Analyze your website's backlinks. Check domain authority, link metrics, and discover new link opportunities.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Domain Analysis</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="filter-section">
+                                <div class="mb-3">
+                                    <label class="form-label">Domain URL</label>
+                                    <input type="url" class="form-control" id="domainInput" placeholder="https://example.com">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Analysis Depth</label>
+                                    <select class="form-select" id="depthInput">
+                                        <option value="quick">Quick Scan (up to 100 backlinks)</option>
+                                        <option value="standard">Standard Scan (up to 500 backlinks)</option>
+                                        <option value="deep">Deep Scan (up to 1000 backlinks)</option>
+                                    </select>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button class="btn btn-primary" id="analyzeBtn">
+                                        <i class="bi bi-search"></i> Analyze Domain
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="filter-section">
+                                <h6 class="mb-3">Filter Options</h6>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Domain Authority</label>
+                                    <select class="form-select" id="daFilter">
+                                        <option value="all">All</option>
+                                        <option value="high">High (DA 50+)</option>
+                                        <option value="medium">Medium (DA 30-49)</option>
+                                        <option value="low">Low (DA 0-29)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Link Type</label>
+                                    <select class="form-select" id="linkTypeFilter">
+                                        <option value="all">All Links</option>
+                                        <option value="dofollow">Dofollow Only</option>
+                                        <option value="nofollow">Nofollow Only</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="activeOnly" checked>
+                                        <label class="form-check-label" for="activeOnly">Show Active Links Only</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Export Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="filter-section">
+                                <div class="mb-3">
+                                    <label class="form-label">Export Format</label>
+                                    <select class="form-select" id="exportFormat">
+                                        <option value="csv">CSV</option>
+                                        <option value="excel">Excel</option>
+                                        <option value="json">JSON</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="includeMetrics" checked>
+                                    <label class="form-check-label" for="includeMetrics">Include Metrics</label>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button class="btn btn-success" id="exportBtn" disabled>
+                                        <i class="bi bi-download"></i> Export Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div id="loadingSection" style="display: none;">
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h5 class="mb-2">Analyzing Backlinks</h5>
+                                <p class="text-muted mb-0" id="analysisStatus">Scanning backlinks...</p>
+                                <div class="progress progress-thin mt-3">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="analysisProgress" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="resultsSection" style="display: none;">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Overview</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-sm-3">
+                                        <div class="metric-card text-center">
+                                            <div class="metric-value" id="totalBacklinks">0</div>
+                                            <div class="metric-label">Total Backlinks</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="metric-card text-center">
+                                            <div class="metric-value" id="domainAuthority">0</div>
+                                            <div class="metric-label">Domain Authority</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="metric-card text-center">
+                                            <div class="metric-value" id="referringDomains">0</div>
+                                            <div class="metric-label">Referring Domains</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="metric-card text-center">
+                                            <div class="metric-value" id="dofollow">0%</div>
+                                            <div class="metric-label">Dofollow Links</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="chart-container mt-4">
+                                    <canvas id="backlinksChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Backlinks</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="backlinksList">
+                                    <!-- Backlinks will be added here -->
+                                </div>
+
+                                <nav aria-label="Backlinks pagination" class="mt-3">
+                                    <ul class="pagination justify-content-center" id="pagination">
+                                        <!-- Pagination will be added here -->
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = {
+                domainInput: document.getElementById('domainInput'),
+                depthInput: document.getElementById('depthInput'),
+                daFilter: document.getElementById('daFilter'),
+                linkTypeFilter: document.getElementById('linkTypeFilter'),
+                activeOnly: document.getElementById('activeOnly'),
+                exportFormat: document.getElementById('exportFormat'),
+                includeMetrics: document.getElementById('includeMetrics'),
+                loadingSection: document.getElementById('loadingSection'),
+                resultsSection: document.getElementById('resultsSection'),
+                analysisStatus: document.getElementById('analysisStatus'),
+                analysisProgress: document.getElementById('analysisProgress'),
+                totalBacklinks: document.getElementById('totalBacklinks'),
+                domainAuthority: document.getElementById('domainAuthority'),
+                referringDomains: document.getElementById('referringDomains'),
+                dofollow: document.getElementById('dofollow'),
+                backlinksList: document.getElementById('backlinksList'),
+                pagination: document.getElementById('pagination')
+            };
+
+            const buttons = {
+                analyze: document.getElementById('analyzeBtn'),
+                export: document.getElementById('exportBtn')
+            };
+
+            let backlinksData = [];
+            let currentPage = 1;
+            const itemsPerPage = 10;
+            let chart = null;
+
+            function startAnalysis() {
+                const domain = elements.domainInput.value.trim();
+                if (!domain) {
+                    alert('Please enter a domain URL');
+                    return;
+                }
+
+                try {
+                    new URL(domain);
+                } catch (e) {
+                    alert('Please enter a valid domain URL');
+                    return;
+                }
+
+                // Show loading section
+                elements.loadingSection.style.display = 'block';
+                elements.resultsSection.style.display = 'none';
+                elements.analysisProgress.style.width = '0%';
+                buttons.analyze.disabled = true;
+
+                // Simulate analysis process
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    elements.analysisProgress.style.width = `${progress}%`;
+
+                    if (progress <= 25) {
+                        elements.analysisStatus.textContent = 'Scanning backlinks...';
+                    } else if (progress <= 50) {
+                        elements.analysisStatus.textContent = 'Analyzing metrics...';
+                    } else if (progress <= 75) {
+                        elements.analysisStatus.textContent = 'Processing data...';
+                    } else {
+                        elements.analysisStatus.textContent = 'Finalizing results...';
+                    }
+
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(showResults, 500);
+                    }
+                }, 100);
+            }
+
+            function showResults() {
+                elements.loadingSection.style.display = 'none';
+                elements.resultsSection.style.display = 'block';
+                buttons.analyze.disabled = false;
+                buttons.export.disabled = false;
+
+                // Generate sample data
+                generateSampleData();
+
+                // Update metrics
+                updateMetrics();
+
+                // Update chart
+                updateChart();
+
+                // Show backlinks
+                updateBacklinksList();
+            }
+
+            function generateSampleData() {
+                const domain = new URL(elements.domainInput.value).hostname;
+                const totalLinks = Math.floor(Math.random() * 500) + 100;
+                backlinksData = [];
+
+                for (let i = 0; i < totalLinks; i++) {
+                    backlinksData.push({
+                        sourceDomain: `example${i}.com`,
+                        targetUrl: `https://${domain}/page${Math.floor(Math.random() * 10)}`,
+                        anchorText: ['Click here', 'Read more', 'Learn more', 'Visit website'][Math.floor(Math.random() * 4)],
+                        domainAuthority: Math.floor(Math.random() * 100),
+                        dofollow: Math.random() > 0.3,
+                        firstSeen: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        lastSeen: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        active: Math.random() > 0.1
+                    });
+                }
+            }
+
+            function updateMetrics() {
+                const totalLinks = backlinksData.length;
+                const activeLinks = backlinksData.filter(link => link.active).length;
+                const dofollowLinks = backlinksData.filter(link => link.dofollow).length;
+                const uniqueDomains = new Set(backlinksData.map(link => link.sourceDomain)).size;
+                const avgDA = Math.floor(backlinksData.reduce((sum, link) => sum + link.domainAuthority, 0) / totalLinks);
+
+                elements.totalBacklinks.textContent = totalLinks;
+                elements.domainAuthority.textContent = avgDA;
+                elements.referringDomains.textContent = uniqueDomains;
+                elements.dofollow.textContent = Math.floor((dofollowLinks / totalLinks) * 100) + '%';
+            }
+
+            function updateChart() {
+                const ctx = document.getElementById('backlinksChart').getContext('2d');
+                
+                if (chart) {
+                    chart.destroy();
+                }
+
+                const monthlyData = {};
+                backlinksData.forEach(link => {
+                    const month = link.firstSeen.substring(0, 7);
+                    monthlyData[month] = (monthlyData[month] || 0) + 1;
+                });
+
+                const labels = Object.keys(monthlyData).sort();
+                const data = labels.map(month => monthlyData[month]);
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'New Backlinks',
+                            data: data,
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            function updateBacklinksList() {
+                let filteredData = backlinksData;
+
+                // Apply filters
+                if (elements.daFilter.value !== 'all') {
+                    filteredData = filteredData.filter(link => {
+                        if (elements.daFilter.value === 'high') return link.domainAuthority >= 50;
+                        if (elements.daFilter.value === 'medium') return link.domainAuthority >= 30 && link.domainAuthority < 50;
+                        return link.domainAuthority < 30;
+                    });
+                }
+
+                if (elements.linkTypeFilter.value !== 'all') {
+                    filteredData = filteredData.filter(link => 
+                        elements.linkTypeFilter.value === 'dofollow' ? link.dofollow : !link.dofollow
+                    );
+                }
+
+                if (elements.activeOnly.checked) {
+                    filteredData = filteredData.filter(link => link.active);
+                }
+
+                // Pagination
+                const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const pageData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+                // Update backlinks list
+                elements.backlinksList.innerHTML = pageData.map(link => `
+                    <div class="backlink-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>${link.sourceDomain}</strong>
+                                <span class="domain-authority da-${getDaClass(link.domainAuthority)}">
+                                    DA: ${link.domainAuthority}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="link-type ${link.dofollow ? 'link-dofollow' : 'link-nofollow'}">
+                                    ${link.dofollow ? 'Dofollow' : 'Nofollow'}
+                                </span>
+                                ${link.active ? 
+                                    '<span class="badge bg-success">Active</span>' : 
+                                    '<span class="badge bg-danger">Inactive</span>'
+                                }
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Target URL:</small>
+                            <a href="${link.targetUrl}" target="_blank" class="ms-1">${link.targetUrl}</a>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Anchor Text:</small>
+                            <span class="anchor-text">${link.anchorText}</span>
+                        </div>
+                        <div class="text-muted">
+                            <small>
+                                First seen: ${link.firstSeen} | 
+                                Last seen: ${link.lastSeen}
+                            </small>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Update pagination
+                updatePagination(totalPages);
+            }
+
+            function updatePagination(totalPages) {
+                let html = '';
+                
+                // Previous button
+                html += `
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                    </li>
+                `;
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    if (
+                        i === 1 || 
+                        i === totalPages || 
+                        (i >= currentPage - 2 && i <= currentPage + 2)
+                    ) {
+                        html += `
+                            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link" href="#" data-page="${i}">${i}</a>
+                            </li>
+                        `;
+                    } else if (
+                        i === currentPage - 3 || 
+                        i === currentPage + 3
+                    ) {
+                        html += `
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        `;
+                    }
+                }
+
+                // Next button
+                html += `
+                    <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                    </li>
+                `;
+
+                elements.pagination.innerHTML = html;
+
+                // Add click handlers
+                elements.pagination.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const page = parseInt(e.target.dataset.page);
+                        if (page && page !== currentPage && page > 0 && page <= totalPages) {
+                            currentPage = page;
+                            updateBacklinksList();
+                        }
+                    });
+                });
+            }
+
+            function getDaClass(da) {
+                if (da >= 50) return 'high';
+                if (da >= 30) return 'medium';
+                return 'low';
+            }
+
+            function exportData() {
+                const format = elements.exportFormat.value;
+                const includeMetrics = elements.includeMetrics.checked;
+                
+                let data;
+                if (format === 'json') {
+                    data = JSON.stringify(backlinksData, null, 2);
+                } else {
+                    // CSV/Excel format
+                    const headers = ['Source Domain', 'Target URL', 'Anchor Text', 'Link Type', 'Status'];
+                    if (includeMetrics) {
+                        headers.push('Domain Authority', 'First Seen', 'Last Seen');
+                    }
+                    
+                    data = headers.join(',') + '\n';
+                    backlinksData.forEach(link => {
+                        const row = [
+                            link.sourceDomain,
+                            link.targetUrl,
+                            link.anchorText,
+                            link.dofollow ? 'Dofollow' : 'Nofollow',
+                            link.active ? 'Active' : 'Inactive'
+                        ];
+                        if (includeMetrics) {
+                            row.push(link.domainAuthority, link.firstSeen, link.lastSeen);
+                        }
+                        data += row.join(',') + '\n';
+                    });
+                }
+
+                const blob = new Blob([data], { 
+                    type: format === 'json' ? 'application/json' : 'text/csv' 
+                });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backlinks_report.${format}`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }
+
+            // Event Listeners
+            buttons.analyze.addEventListener('click', startAnalysis);
+            buttons.export.addEventListener('click', exportData);
+
+            [elements.daFilter, elements.linkTypeFilter, elements.activeOnly].forEach(el => {
+                el.addEventListener('change', () => {
+                    currentPage = 1;
+                    updateBacklinksList();
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitemap Generator - Multi-Tools</title>
+    <meta name="description" content="Generate XML and HTML sitemaps for your website. Create search engine friendly sitemaps with customizable options and styling.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .url-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        .url-card:hover {
+            background-color: #e9ecef;
+        }
+        .url-card .remove-url {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            cursor: pointer;
+            color: #dc3545;
+        }
+        .preview-box {
+            font-family: monospace;
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .html-preview {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .url-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .priority-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+        .priority-high {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .priority-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .priority-low {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .template-btn {
+            margin: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .config-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .config-section:hover {
+            background-color: #e9ecef;
+        }
+        .html-sitemap-preview a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .html-sitemap-preview a:hover {
+            text-decoration: underline;
+        }
+        .html-sitemap-preview .category {
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #212529;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Sitemap Generator</h1>
+                <p class="tool-description">Generate XML and HTML sitemaps for your website. Create search engine friendly sitemaps with customizable options and styling.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Add URLs</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="config-section">
+                                <div class="mb-3">
+                                    <label class="form-label">URL</label>
+                                    <input type="url" class="form-control" id="urlInput" placeholder="https://example.com/page">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Category (optional)</label>
+                                    <input type="text" class="form-control" id="categoryInput" placeholder="e.g., Products, Blog, etc.">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Priority</label>
+                                    <select class="form-select" id="priorityInput">
+                                        <option value="1.0">1.0 (Highest)</option>
+                                        <option value="0.8">0.8 (High)</option>
+                                        <option value="0.6" selected>0.6 (Medium)</option>
+                                        <option value="0.4">0.4 (Low)</option>
+                                        <option value="0.2">0.2 (Lowest)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Change Frequency</label>
+                                    <select class="form-select" id="frequencyInput">
+                                        <option value="always">Always</option>
+                                        <option value="hourly">Hourly</option>
+                                        <option value="daily" selected>Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                        <option value="never">Never</option>
+                                    </select>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button class="btn btn-primary" id="addUrlBtn">
+                                        <i class="bi bi-plus-circle"></i> Add URL
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="config-section">
+                                <h6 class="mb-3">Bulk Import</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">URLs (one per line)</label>
+                                    <textarea class="form-control" id="bulkUrls" rows="4" placeholder="https://example.com/page1&#10;https://example.com/page2"></textarea>
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-secondary" id="importUrlsBtn">
+                                        <i class="bi bi-upload"></i> Import URLs
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="config-section">
+                                <h6 class="mb-3">XML Sitemap Options</h6>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="includeLastMod" checked>
+                                    <label class="form-check-label" for="includeLastMod">Include Last Modified Date</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="prettyPrint" checked>
+                                    <label class="form-check-label" for="prettyPrint">Pretty Print XML</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeXsl">
+                                    <label class="form-check-label" for="includeXsl">Include XML Stylesheet</label>
+                                </div>
+                            </div>
+
+                            <div class="config-section">
+                                <h6 class="mb-3">HTML Sitemap Options</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Layout Style</label>
+                                    <select class="form-select" id="layoutStyle">
+                                        <option value="list">Simple List</option>
+                                        <option value="categories">Categorized List</option>
+                                        <option value="columns">Multi-Column</option>
+                                        <option value="tree">Tree Structure</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Link Color</label>
+                                    <input type="color" class="form-control form-control-color" id="linkColor" value="#0d6efd">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Added URLs</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="url-list" id="urlList">
+                                <!-- URLs will be added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" id="sitemapTabs">
+                                <li class="nav-item">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-format="xml">XML Sitemap</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-format="html">HTML Sitemap</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="xmlPreview">
+                                    <div class="d-flex justify-content-end mb-3">
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-primary" id="copyXmlBtn">
+                                                <i class="bi bi-clipboard"></i> Copy
+                                            </button>
+                                            <button class="btn btn-sm btn-success" id="downloadXmlBtn">
+                                                <i class="bi bi-download"></i> Download XML
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="preview-box" id="xmlOutput">
+                                        <!-- XML sitemap will appear here -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="htmlPreview">
+                                    <div class="d-flex justify-content-end mb-3">
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-primary" id="copyHtmlBtn">
+                                                <i class="bi bi-clipboard"></i> Copy
+                                            </button>
+                                            <button class="btn btn-sm btn-success" id="downloadHtmlBtn">
+                                                <i class="bi bi-download"></i> Download HTML
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="html-preview">
+                                        <div class="html-sitemap-preview" id="htmlOutput">
+                                            <!-- HTML sitemap will appear here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = {
+                urlInput: document.getElementById('urlInput'),
+                categoryInput: document.getElementById('categoryInput'),
+                priorityInput: document.getElementById('priorityInput'),
+                frequencyInput: document.getElementById('frequencyInput'),
+                bulkUrls: document.getElementById('bulkUrls'),
+                urlList: document.getElementById('urlList'),
+                xmlOutput: document.getElementById('xmlOutput'),
+                htmlOutput: document.getElementById('htmlOutput'),
+                includeLastMod: document.getElementById('includeLastMod'),
+                prettyPrint: document.getElementById('prettyPrint'),
+                includeXsl: document.getElementById('includeXsl'),
+                layoutStyle: document.getElementById('layoutStyle'),
+                linkColor: document.getElementById('linkColor'),
+                sitemapTabs: document.getElementById('sitemapTabs')
+            };
+
+            const buttons = {
+                addUrl: document.getElementById('addUrlBtn'),
+                importUrls: document.getElementById('importUrlsBtn'),
+                copyXml: document.getElementById('copyXmlBtn'),
+                downloadXml: document.getElementById('downloadXmlBtn'),
+                copyHtml: document.getElementById('copyHtmlBtn'),
+                downloadHtml: document.getElementById('downloadHtmlBtn')
+            };
+
+            let urls = [];
+
+            function addUrl() {
+                const url = elements.urlInput.value.trim();
+                if (!url) {
+                    alert('Please enter a URL');
+                    return;
+                }
+
+                try {
+                    new URL(url);
+                } catch (e) {
+                    alert('Please enter a valid URL');
+                    return;
+                }
+
+                urls.push({
+                    url: url,
+                    category: elements.categoryInput.value.trim(),
+                    priority: elements.priorityInput.value,
+                    frequency: elements.frequencyInput.value,
+                    lastmod: new Date().toISOString().split('T')[0]
+                });
+
+                updateUrlList();
+                updateSitemaps();
+                clearInputs();
+            }
+
+            function importUrls() {
+                const bulkUrls = elements.bulkUrls.value.trim().split('\n');
+                let added = 0;
+
+                bulkUrls.forEach(url => {
+                    url = url.trim();
+                    if (url) {
+                        try {
+                            new URL(url);
+                            urls.push({
+                                url: url,
+                                category: 'Imported',
+                                priority: '0.6',
+                                frequency: 'daily',
+                                lastmod: new Date().toISOString().split('T')[0]
+                            });
+                            added++;
+                        } catch (e) {
+                            // Skip invalid URLs
+                        }
+                    }
+                });
+
+                if (added > 0) {
+                    updateUrlList();
+                    updateSitemaps();
+                    elements.bulkUrls.value = '';
+                    alert(`Successfully imported ${added} URLs`);
+                } else {
+                    alert('No valid URLs found');
+                }
+            }
+
+            function updateUrlList() {
+                elements.urlList.innerHTML = urls.map((item, index) => `
+                    <div class="url-card">
+                        <span class="remove-url" onclick="removeUrl(${index})">
+                            <i class="bi bi-x-circle"></i>
+                        </span>
+                        <div class="mb-1">
+                            <strong>${item.url}</strong>
+                            <span class="priority-badge priority-${getPriorityClass(item.priority)}">
+                                Priority: ${item.priority}
+                            </span>
+                        </div>
+                        <div class="text-muted">
+                            <small>
+                                Category: ${item.category || 'None'} | 
+                                Frequency: ${item.frequency} | 
+                                Last Modified: ${item.lastmod}
+                            </small>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function updateSitemaps() {
+                updateXmlSitemap();
+                updateHtmlSitemap();
+            }
+
+            function updateXmlSitemap() {
+                const includeLastMod = elements.includeLastMod.checked;
+                const prettyPrint = elements.prettyPrint.checked;
+                const includeXsl = elements.includeXsl.checked;
+
+                let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+                if (includeXsl) {
+                    xml += '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n';
+                }
+                xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+                urls.forEach(item => {
+                    xml += prettyPrint ? '  <url>\n' : '<url>';
+                    xml += prettyPrint ? `    <loc>${item.url}</loc>\n` : `<loc>${item.url}</loc>`;
+                    if (includeLastMod) {
+                        xml += prettyPrint ? `    <lastmod>${item.lastmod}</lastmod>\n` : `<lastmod>${item.lastmod}</lastmod>`;
+                    }
+                    xml += prettyPrint ? `    <changefreq>${item.frequency}</changefreq>\n` : `<changefreq>${item.frequency}</changefreq>`;
+                    xml += prettyPrint ? `    <priority>${item.priority}</priority>\n` : `<priority>${item.priority}</priority>`;
+                    xml += prettyPrint ? '  </url>\n' : '</url>';
+                });
+
+                xml += '</urlset>';
+                elements.xmlOutput.textContent = xml;
+            }
+
+            function updateHtmlSitemap() {
+                const layout = elements.layoutStyle.value;
+                const linkColor = elements.linkColor.value;
+
+                let html = `<style>
+                    .sitemap-container a { color: ${linkColor}; }
+                </style>\n<div class="sitemap-container">`;
+
+                if (layout === 'categories') {
+                    const categories = {};
+                    urls.forEach(item => {
+                        const category = item.category || 'Uncategorized';
+                        if (!categories[category]) {
+                            categories[category] = [];
+                        }
+                        categories[category].push(item);
+                    });
+
+                    for (const [category, items] of Object.entries(categories)) {
+                        html += `<div class="category">${category}</div><ul>`;
+                        items.forEach(item => {
+                            html += `<li><a href="${item.url}">${getPageTitle(item.url)}</a></li>`;
+                        });
+                        html += '</ul>';
+                    }
+                } else if (layout === 'columns') {
+                    html += '<div class="row">';
+                    const columns = 3;
+                    const itemsPerColumn = Math.ceil(urls.length / columns);
+                    
+                    for (let i = 0; i < columns; i++) {
+                        html += '<div class="col-md-4"><ul>';
+                        urls.slice(i * itemsPerColumn, (i + 1) * itemsPerColumn).forEach(item => {
+                            html += `<li><a href="${item.url}">${getPageTitle(item.url)}</a></li>`;
+                        });
+                        html += '</ul></div>';
+                    }
+                    html += '</div>';
+                } else {
+                    // Simple list
+                    html += '<ul>';
+                    urls.forEach(item => {
+                        html += `<li><a href="${item.url}">${getPageTitle(item.url)}</a></li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                html += '</div>';
+                elements.htmlOutput.innerHTML = html;
+            }
+
+            function getPageTitle(url) {
+                try {
+                    const urlObj = new URL(url);
+                    return urlObj.pathname.split('/').filter(Boolean).pop() || urlObj.hostname;
+                } catch (e) {
+                    return url;
+                }
+            }
+
+            function getPriorityClass(priority) {
+                const p = parseFloat(priority);
+                if (p >= 0.8) return 'high';
+                if (p >= 0.5) return 'medium';
+                return 'low';
+            }
+
+            function clearInputs() {
+                elements.urlInput.value = '';
+                elements.categoryInput.value = '';
+                elements.priorityInput.value = '0.6';
+                elements.frequencyInput.value = 'daily';
+            }
+
+            function removeUrl(index) {
+                urls.splice(index, 1);
+                updateUrlList();
+                updateSitemaps();
+            }
+
+            // Event Listeners
+            buttons.addUrl.addEventListener('click', addUrl);
+            buttons.importUrls.addEventListener('click', importUrls);
+
+            buttons.copyXml.addEventListener('click', () => {
+                navigator.clipboard.writeText(elements.xmlOutput.textContent)
+                    .then(() => alert('XML sitemap copied to clipboard!'))
+                    .catch(() => alert('Failed to copy to clipboard'));
+            });
+
+            buttons.copyHtml.addEventListener('click', () => {
+                navigator.clipboard.writeText(elements.htmlOutput.innerHTML)
+                    .then(() => alert('HTML sitemap copied to clipboard!'))
+                    .catch(() => alert('Failed to copy to clipboard'));
+            });
+
+            buttons.downloadXml.addEventListener('click', () => {
+                const blob = new Blob([elements.xmlOutput.textContent], { type: 'text/xml' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'sitemap.xml';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+
+            buttons.downloadHtml.addEventListener('click', () => {
+                const blob = new Blob([elements.htmlOutput.innerHTML], { type: 'text/html' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'sitemap.html';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+
+            elements.sitemapTabs.addEventListener('click', (e) => {
+                if (e.target.classList.contains('nav-link')) {
+                    elements.sitemapTabs.querySelector('.active').classList.remove('active');
+                    e.target.classList.add('active');
+                }
+            });
+
+            [elements.includeLastMod, elements.prettyPrint, elements.includeXsl].forEach(el => {
+                el.addEventListener('change', updateXmlSitemap);
+            });
+
+            [elements.layoutStyle, elements.linkColor].forEach(el => {
+                el.addEventListener('change', updateHtmlSitemap);
+            });
+
+            // Make removeUrl function globally available
+            window.removeUrl = removeUrl;
+        });
+    </script>
+</body>
+</html> 

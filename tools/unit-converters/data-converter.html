@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Unit Converter - Free Online Tool</title>
+    <meta name="description" content="Free online data unit converter tool. Convert between bytes, kilobytes, megabytes, gigabytes, and more.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .converter-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .options-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .result {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .common-conversions {
+            font-size: 0.9rem;
+        }
+        .unit-group {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .unit-group h6 {
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">Data Unit Converter</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="converter-card">
+                    <!-- Converter Section -->
+                    <div class="options-section mb-4">
+                        <h5 class="mb-3">Convert Data Units</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="dataValue" class="form-label">Value</label>
+                                <input type="number" class="form-control" id="dataValue" value="1" min="0" step="any">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fromUnit" class="form-label">From</label>
+                                <select class="form-select" id="fromUnit">
+                                    <!-- Binary Units -->
+                                    <optgroup label="Binary (Base-2)">
+                                        <option value="b">Bits (b)</option>
+                                        <option value="B">Bytes (B)</option>
+                                        <option value="KiB" selected>Kibibytes (KiB)</option>
+                                        <option value="MiB">Mebibytes (MiB)</option>
+                                        <option value="GiB">Gibibytes (GiB)</option>
+                                        <option value="TiB">Tebibytes (TiB)</option>
+                                        <option value="PiB">Pebibytes (PiB)</option>
+                                    </optgroup>
+                                    <!-- Decimal Units -->
+                                    <optgroup label="Decimal (Base-10)">
+                                        <option value="kB">Kilobytes (kB)</option>
+                                        <option value="MB">Megabytes (MB)</option>
+                                        <option value="GB">Gigabytes (GB)</option>
+                                        <option value="TB">Terabytes (TB)</option>
+                                        <option value="PB">Petabytes (PB)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="toUnit" class="form-label">To</label>
+                                <select class="form-select" id="toUnit">
+                                    <!-- Binary Units -->
+                                    <optgroup label="Binary (Base-2)">
+                                        <option value="b">Bits (b)</option>
+                                        <option value="B">Bytes (B)</option>
+                                        <option value="KiB">Kibibytes (KiB)</option>
+                                        <option value="MiB" selected>Mebibytes (MiB)</option>
+                                        <option value="GiB">Gibibytes (GiB)</option>
+                                        <option value="TiB">Tebibytes (TiB)</option>
+                                        <option value="PiB">Pebibytes (PiB)</option>
+                                    </optgroup>
+                                    <!-- Decimal Units -->
+                                    <optgroup label="Decimal (Base-10)">
+                                        <option value="kB">Kilobytes (kB)</option>
+                                        <option value="MB">Megabytes (MB)</option>
+                                        <option value="GB">Gigabytes (GB)</option>
+                                        <option value="TB">Terabytes (TB)</option>
+                                        <option value="PB">Petabytes (PB)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="result" id="result">1.024 MiB</p>
+                        </div>
+                    </div>
+
+                    <!-- Unit Information -->
+                    <div class="options-section">
+                        <h5 class="mb-3">Data Unit Information</h5>
+                        
+                        <!-- Binary Units -->
+                        <div class="unit-group">
+                            <h6>Binary Units (Base-2)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered common-conversions">
+                                    <thead>
+                                        <tr>
+                                            <th>Unit</th>
+                                            <th>Symbol</th>
+                                            <th>Bytes</th>
+                                            <th>Power</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Byte</td>
+                                            <td>B</td>
+                                            <td>1</td>
+                                            <td>2⁰</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Kibibyte</td>
+                                            <td>KiB</td>
+                                            <td>1,024</td>
+                                            <td>2¹⁰</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mebibyte</td>
+                                            <td>MiB</td>
+                                            <td>1,048,576</td>
+                                            <td>2²⁰</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Gibibyte</td>
+                                            <td>GiB</td>
+                                            <td>1,073,741,824</td>
+                                            <td>2³⁰</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tebibyte</td>
+                                            <td>TiB</td>
+                                            <td>1,099,511,627,776</td>
+                                            <td>2⁴⁰</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Decimal Units -->
+                        <div class="unit-group">
+                            <h6>Decimal Units (Base-10)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered common-conversions">
+                                    <thead>
+                                        <tr>
+                                            <th>Unit</th>
+                                            <th>Symbol</th>
+                                            <th>Bytes</th>
+                                            <th>Power</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Kilobyte</td>
+                                            <td>kB</td>
+                                            <td>1,000</td>
+                                            <td>10³</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Megabyte</td>
+                                            <td>MB</td>
+                                            <td>1,000,000</td>
+                                            <td>10⁶</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Gigabyte</td>
+                                            <td>GB</td>
+                                            <td>1,000,000,000</td>
+                                            <td>10⁹</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Terabyte</td>
+                                            <td>TB</td>
+                                            <td>1,000,000,000,000</td>
+                                            <td>10¹²</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Size Calculator -->
+                    <div class="options-section">
+                        <h5 class="mb-3">File Size Calculator</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">File Type</label>
+                                <select class="form-select" id="fileType">
+                                    <option value="text">Text Document</option>
+                                    <option value="image">Image</option>
+                                    <option value="audio">Audio</option>
+                                    <option value="video">Video</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" id="textOptions">
+                                <label class="form-label">Characters</label>
+                                <input type="number" class="form-control" id="charCount" value="1000">
+                            </div>
+                            <div class="col-md-6 d-none" id="imageOptions">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label">Width (px)</label>
+                                        <input type="number" class="form-control" id="imageWidth" value="1920">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">Height (px)</label>
+                                        <input type="number" class="form-control" id="imageHeight" value="1080">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Format</label>
+                                        <select class="form-select" id="imageFormat">
+                                            <option value="jpg">JPEG</option>
+                                            <option value="png">PNG</option>
+                                            <option value="gif">GIF</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 d-none" id="audioOptions">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label">Duration (min)</label>
+                                        <input type="number" class="form-control" id="audioDuration" value="3">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">Quality</label>
+                                        <select class="form-select" id="audioQuality">
+                                            <option value="128">128 kbps</option>
+                                            <option value="192">192 kbps</option>
+                                            <option value="320">320 kbps</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 d-none" id="videoOptions">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="form-label">Duration (min)</label>
+                                        <input type="number" class="form-control" id="videoDuration" value="3">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label">Quality</label>
+                                        <select class="form-select" id="videoQuality">
+                                            <option value="720p">720p</option>
+                                            <option value="1080p">1080p</option>
+                                            <option value="4k">4K</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    Estimated File Size: <span id="estimatedSize">0 B</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bandwidth Calculator -->
+                    <div class="options-section mt-4">
+                        <h5 class="mb-3">Bandwidth Calculator</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Data Amount</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="bandwidthAmount" value="1">
+                                    <select class="form-select" id="bandwidthUnit">
+                                        <option value="MB">MB</option>
+                                        <option value="GB">GB</option>
+                                        <option value="TB">TB</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Time Period</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="bandwidthTime" value="1">
+                                    <select class="form-select" id="bandwidthTimeUnit">
+                                        <option value="second">Second</option>
+                                        <option value="minute">Minute</option>
+                                        <option value="hour">Hour</option>
+                                        <option value="day">Day</option>
+                                        <option value="month">Month</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    Required Bandwidth: <span id="requiredBandwidth">0 Mbps</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download Time Estimator -->
+                    <div class="options-section mt-4">
+                        <h5 class="mb-3">Download Time Estimator</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">File Size</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="downloadSize" value="1">
+                                    <select class="form-select" id="downloadSizeUnit">
+                                        <option value="MB">MB</option>
+                                        <option value="GB">GB</option>
+                                        <option value="TB">TB</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Internet Speed</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="downloadSpeed" value="100">
+                                    <select class="form-select" id="downloadSpeedUnit">
+                                        <option value="Mbps">Mbps</option>
+                                        <option value="MBps">MB/s</option>
+                                        <option value="Gbps">Gbps</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    Estimated Download Time: <span id="downloadTime">0 seconds</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // Data unit conversion constants
+        const dataUnits = {
+            // Base conversion to bits
+            b: 1,
+            B: 8,
+            KiB: 8 * Math.pow(2, 10),
+            MiB: 8 * Math.pow(2, 20),
+            GiB: 8 * Math.pow(2, 30),
+            TiB: 8 * Math.pow(2, 40),
+            PiB: 8 * Math.pow(2, 50),
+            kB: 8 * Math.pow(10, 3),
+            MB: 8 * Math.pow(10, 6),
+            GB: 8 * Math.pow(10, 9),
+            TB: 8 * Math.pow(10, 12),
+            PB: 8 * Math.pow(10, 15)
+        };
+
+        // DOM elements
+        const dataValue = document.getElementById('dataValue');
+        const fromUnit = document.getElementById('fromUnit');
+        const toUnit = document.getElementById('toUnit');
+        const result = document.getElementById('result');
+
+        function convert() {
+            const value = parseFloat(dataValue.value);
+            const from = fromUnit.value;
+            const to = toUnit.value;
+
+            if (isNaN(value)) {
+                result.textContent = 'Please enter a valid number';
+                return;
+            }
+
+            // Convert to bits first, then to target unit
+            const bits = value * dataUnits[from];
+            const converted = bits / dataUnits[to];
+
+            // Format the result
+            result.textContent = `${formatResult(converted)} ${to}`;
+        }
+
+        function formatResult(number) {
+            if (number === 0) return '0';
+            
+            const abs = Math.abs(number);
+            if (abs < 0.000001 || abs >= 1000000) {
+                return number.toExponential(6);
+            }
+            
+            return number.toLocaleString(undefined, {
+                maximumFractionDigits: 6,
+                minimumFractionDigits: 0
+            });
+        }
+
+        // Event listeners
+        [dataValue, fromUnit, toUnit].forEach(element => {
+            element.addEventListener('input', convert);
+        });
+
+        // Initial conversion
+        convert();
+
+        // File Size Calculator
+        const fileSizeEstimates = {
+            text: {
+                base: 1, // 1 byte per character
+            },
+            image: {
+                jpg: 0.25, // bytes per pixel
+                png: 0.5,
+                gif: 0.35
+            },
+            audio: {
+                128: 0.016, // MB per second
+                192: 0.024,
+                320: 0.04
+            },
+            video: {
+                '720p': 0.1, // MB per second
+                '1080p': 0.2,
+                '4k': 0.8
+            }
+        };
+
+        function updateFileSizeEstimate() {
+            const fileType = document.getElementById('fileType').value;
+            let size = 0;
+
+            switch(fileType) {
+                case 'text':
+                    const chars = parseInt(document.getElementById('charCount').value) || 0;
+                    size = chars * fileSizeEstimates.text.base;
+                    break;
+                case 'image':
+                    const width = parseInt(document.getElementById('imageWidth').value) || 0;
+                    const height = parseInt(document.getElementById('imageHeight').value) || 0;
+                    const format = document.getElementById('imageFormat').value;
+                    size = width * height * fileSizeEstimates.image[format];
+                    break;
+                case 'audio':
+                    const audioDuration = parseInt(document.getElementById('audioDuration').value) || 0;
+                    const quality = document.getElementById('audioQuality').value;
+                    size = audioDuration * 60 * fileSizeEstimates.audio[quality] * 1024 * 1024; // Convert MB to bytes
+                    break;
+                case 'video':
+                    const videoDuration = parseInt(document.getElementById('videoDuration').value) || 0;
+                    const videoQuality = document.getElementById('videoQuality').value;
+                    size = videoDuration * 60 * fileSizeEstimates.video[videoQuality] * 1024 * 1024; // Convert MB to bytes
+                    break;
+            }
+
+            document.getElementById('estimatedSize').textContent = formatFileSize(size);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Show/hide options based on file type
+        document.getElementById('fileType').addEventListener('change', function() {
+            const options = ['text', 'image', 'audio', 'video'];
+            options.forEach(type => {
+                const element = document.getElementById(type + 'Options');
+                element.classList.toggle('d-none', this.value !== type);
+            });
+            updateFileSizeEstimate();
+        });
+
+        // Add event listeners for file size calculator
+        ['charCount', 'imageWidth', 'imageHeight', 'imageFormat', 'audioDuration', 'audioQuality', 'videoDuration', 'videoQuality'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', updateFileSizeEstimate);
+            }
+        });
+
+        // Bandwidth Calculator
+        function calculateBandwidth() {
+            const amount = parseFloat(document.getElementById('bandwidthAmount').value) || 0;
+            const unit = document.getElementById('bandwidthUnit').value;
+            const time = parseFloat(document.getElementById('bandwidthTime').value) || 0;
+            const timeUnit = document.getElementById('bandwidthTimeUnit').value;
+
+            // Convert to bits
+            let bits = amount * 8;
+            switch(unit) {
+                case 'MB': bits *= 1024 * 1024; break;
+                case 'GB': bits *= 1024 * 1024 * 1024; break;
+                case 'TB': bits *= 1024 * 1024 * 1024 * 1024; break;
+            }
+
+            // Convert time to seconds
+            let seconds = time;
+            switch(timeUnit) {
+                case 'minute': seconds *= 60; break;
+                case 'hour': seconds *= 3600; break;
+                case 'day': seconds *= 86400; break;
+                case 'month': seconds *= 2592000; break;
+            }
+
+            // Calculate bandwidth in Mbps
+            const bandwidth = bits / seconds / 1000000;
+            document.getElementById('requiredBandwidth').textContent = bandwidth.toFixed(2) + ' Mbps';
+        }
+
+        // Add event listeners for bandwidth calculator
+        ['bandwidthAmount', 'bandwidthUnit', 'bandwidthTime', 'bandwidthTimeUnit'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculateBandwidth);
+        });
+
+        // Download Time Estimator
+        function calculateDownloadTime() {
+            const size = parseFloat(document.getElementById('downloadSize').value) || 0;
+            const sizeUnit = document.getElementById('downloadSizeUnit').value;
+            const speed = parseFloat(document.getElementById('downloadSpeed').value) || 0;
+            const speedUnit = document.getElementById('downloadSpeedUnit').value;
+
+            // Convert size to bits
+            let bits = size * 8;
+            switch(sizeUnit) {
+                case 'MB': bits *= 1024 * 1024; break;
+                case 'GB': bits *= 1024 * 1024 * 1024; break;
+                case 'TB': bits *= 1024 * 1024 * 1024 * 1024; break;
+            }
+
+            // Convert speed to bits per second
+            let bps = speed;
+            switch(speedUnit) {
+                case 'Mbps': bps *= 1000000; break;
+                case 'MBps': bps *= 8 * 1024 * 1024; break;
+                case 'Gbps': bps *= 1000000000; break;
+            }
+
+            // Calculate time in seconds
+            const seconds = bits / bps;
+            document.getElementById('downloadTime').textContent = formatTime(seconds);
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) {
+                return seconds.toFixed(1) + ' seconds';
+            } else if (seconds < 3600) {
+                return (seconds / 60).toFixed(1) + ' minutes';
+            } else if (seconds < 86400) {
+                return (seconds / 3600).toFixed(1) + ' hours';
+            } else {
+                return (seconds / 86400).toFixed(1) + ' days';
+            }
+        }
+
+        // Add event listeners for download time estimator
+        ['downloadSize', 'downloadSizeUnit', 'downloadSpeed', 'downloadSpeedUnit'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculateDownloadTime);
+        });
+
+        // Initial calculations
+        updateFileSizeEstimate();
+        calculateBandwidth();
+        calculateDownloadTime();
+    </script>
+</body>
+</html> 

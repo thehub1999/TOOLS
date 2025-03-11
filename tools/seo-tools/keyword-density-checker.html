@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Density Checker - Multi-Tools</title>
+    <meta name="description" content="Analyze your content's keyword density. Check keyword frequency, distribution, and get SEO insights for your text content.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .analysis-area {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .keyword-table {
+            font-size: 0.9rem;
+        }
+        .keyword-table th {
+            background-color: #f8f9fa;
+        }
+        .density-bar {
+            height: 0.5rem;
+            background-color: #e9ecef;
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+        .density-bar-fill {
+            height: 100%;
+            background-color: #0d6efd;
+            transition: width 0.3s ease;
+        }
+        .optimal-range {
+            color: #198754;
+        }
+        .warning-range {
+            color: #dc3545;
+        }
+        .stats-card {
+            border-left: 4px solid #0d6efd;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Keyword Density Checker</h1>
+                <p class="tool-description">Analyze your content's keyword density and get insights for SEO optimization. Check keyword frequency and distribution in your text.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Content Analysis</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Enter Your Content</label>
+                                <textarea class="form-control" id="contentInput" rows="12" placeholder="Paste your content here..."></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Analysis Options</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="ignoreCaseCheck" checked>
+                                    <label class="form-check-label">Ignore case (upper/lowercase)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="ignoreStopWordsCheck" checked>
+                                    <label class="form-check-label">Ignore common stop words</label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="analyzeBtn">
+                                    <i class="bi bi-search"></i> Analyze Content
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Content Statistics</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6 mb-3">
+                                    <div class="stats-card p-3">
+                                        <h6 class="mb-2">Total Words</h6>
+                                        <h4 class="mb-0" id="totalWords">0</h4>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <div class="stats-card p-3">
+                                        <h6 class="mb-2">Unique Words</h6>
+                                        <h4 class="mb-0" id="uniqueWords">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Keyword Analysis</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="analysisResult" class="d-none">
+                                <div class="table-responsive">
+                                    <table class="table table-sm keyword-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Keyword</th>
+                                                <th>Count</th>
+                                                <th>Density</th>
+                                                <th>Distribution</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="keywordTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div id="noContentMessage" class="text-center py-4">
+                                <i class="bi bi-file-text display-4 text-muted"></i>
+                                <p class="mt-3 text-muted">Enter your content and click Analyze to see keyword density results.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">SEO Recommendations</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0" id="seoRecommendations">
+                                <li class="mb-2"><i class="bi bi-info-circle text-primary"></i> Optimal keyword density is between 1-3%</li>
+                                <li class="mb-2"><i class="bi bi-info-circle text-primary"></i> Use variations of your main keywords</li>
+                                <li class="mb-2"><i class="bi bi-info-circle text-primary"></i> Avoid keyword stuffing (density > 5%)</li>
+                                <li class="mb-2"><i class="bi bi-info-circle text-primary"></i> Include keywords naturally in your content</li>
+                                <li><i class="bi bi-info-circle text-primary"></i> Focus on user readability first</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const contentInput = document.getElementById('contentInput');
+            const ignoreCaseCheck = document.getElementById('ignoreCaseCheck');
+            const ignoreStopWordsCheck = document.getElementById('ignoreStopWordsCheck');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const analysisResult = document.getElementById('analysisResult');
+            const noContentMessage = document.getElementById('noContentMessage');
+            const keywordTableBody = document.getElementById('keywordTableBody');
+            const totalWords = document.getElementById('totalWords');
+            const uniqueWords = document.getElementById('uniqueWords');
+
+            // Common English stop words
+            const stopWords = new Set([
+                'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from',
+                'has', 'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the',
+                'to', 'was', 'were', 'will', 'with'
+            ]);
+
+            analyzeBtn.addEventListener('click', () => {
+                const content = contentInput.value.trim();
+                
+                if (!content) {
+                    alert('Please enter some content to analyze.');
+                    return;
+                }
+
+                // Process content
+                let words = content.split(/\s+/);
+                words = words.filter(word => word.length > 0);
+
+                // Calculate word frequencies
+                const wordFreq = new Map();
+                const totalWordCount = words.length;
+
+                words.forEach(word => {
+                    // Clean the word
+                    word = word.replace(/[.,!?;:'"()]/g, '');
+                    
+                    if (ignoreCaseCheck.checked) {
+                        word = word.toLowerCase();
+                    }
+
+                    if (ignoreStopWordsCheck.checked && stopWords.has(word.toLowerCase())) {
+                        return;
+                    }
+
+                    if (word.length > 0) {
+                        wordFreq.set(word, (wordFreq.get(word) || 0) + 1);
+                    }
+                });
+
+                // Sort words by frequency
+                const sortedWords = Array.from(wordFreq.entries())
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 20); // Show top 20 keywords
+
+                // Update statistics
+                totalWords.textContent = totalWordCount;
+                uniqueWords.textContent = wordFreq.size;
+
+                // Clear previous results
+                keywordTableBody.innerHTML = '';
+
+                // Generate table rows
+                sortedWords.forEach(([word, count]) => {
+                    const density = (count / totalWordCount * 100).toFixed(2);
+                    const row = document.createElement('tr');
+                    
+                    // Add density class
+                    const densityClass = density > 5 ? 'warning-range' : 
+                                       density >= 1 && density <= 3 ? 'optimal-range' : '';
+                    
+                    row.innerHTML = `
+                        <td>${word}</td>
+                        <td>${count}</td>
+                        <td class="${densityClass}">${density}%</td>
+                        <td>
+                            <div class="density-bar">
+                                <div class="density-bar-fill" style="width: ${Math.min(density * 10, 100)}%"></div>
+                            </div>
+                        </td>
+                    `;
+                    
+                    keywordTableBody.appendChild(row);
+                });
+
+                // Show results
+                analysisResult.classList.remove('d-none');
+                noContentMessage.classList.add('d-none');
+            });
+
+            // Reset form when content is cleared
+            contentInput.addEventListener('input', () => {
+                if (!contentInput.value.trim()) {
+                    analysisResult.classList.add('d-none');
+                    noContentMessage.classList.remove('d-none');
+                    totalWords.textContent = '0';
+                    uniqueWords.textContent = '0';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

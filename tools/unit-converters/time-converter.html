@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Converter - Free Online Tool</title>
+    <meta name="description" content="Free online time converter tool. Convert between different time units and timezones.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .converter-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .options-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .result {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .common-conversions {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">Time Converter</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="converter-card">
+                    <!-- Time Unit Converter -->
+                    <div class="options-section mb-4">
+                        <h5 class="mb-3">Time Unit Converter</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="timeValue" class="form-label">Value</label>
+                                <input type="number" class="form-control" id="timeValue" value="1" min="0" step="any">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fromUnit" class="form-label">From</label>
+                                <select class="form-select" id="fromUnit">
+                                    <option value="milliseconds">Milliseconds</option>
+                                    <option value="seconds">Seconds</option>
+                                    <option value="minutes">Minutes</option>
+                                    <option value="hours" selected>Hours</option>
+                                    <option value="days">Days</option>
+                                    <option value="weeks">Weeks</option>
+                                    <option value="months">Months</option>
+                                    <option value="years">Years</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="toUnit" class="form-label">To</label>
+                                <select class="form-select" id="toUnit">
+                                    <option value="milliseconds">Milliseconds</option>
+                                    <option value="seconds">Seconds</option>
+                                    <option value="minutes" selected>Minutes</option>
+                                    <option value="hours">Hours</option>
+                                    <option value="days">Days</option>
+                                    <option value="weeks">Weeks</option>
+                                    <option value="months">Months</option>
+                                    <option value="years">Years</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="result" id="unitResult">60 Minutes</p>
+                        </div>
+                    </div>
+
+                    <!-- Timezone Converter -->
+                    <div class="options-section mb-4">
+                        <h5 class="mb-3">Timezone Converter</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="datetime" class="form-label">Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="datetime">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fromTimezone" class="form-label">From Timezone</label>
+                                <select class="form-select" id="fromTimezone"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="toTimezone" class="form-label">To Timezone</label>
+                                <select class="form-select" id="toTimezone"></select>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="result" id="timezoneResult">Select date, time, and timezones</p>
+                        </div>
+                    </div>
+
+                    <!-- Calendar View -->
+                    <div class="options-section mb-4">
+                        <h5 class="mb-3">Calendar View</h5>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div id="calendar" class="bg-white p-3 rounded"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="event-list">
+                                    <h6>Events</h6>
+                                    <div id="eventList" class="list-group"></div>
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                                            Add Event
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Countdown Timer -->
+                    <div class="options-section mb-4">
+                        <h5 class="mb-3">Countdown Timer</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="hours" placeholder="Hours" min="0" max="99">
+                                    <input type="number" class="form-control" id="minutes" placeholder="Minutes" min="0" max="59">
+                                    <input type="number" class="form-control" id="seconds" placeholder="Seconds" min="0" max="59">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-primary" id="startTimer">Start</button>
+                                <button class="btn btn-warning" id="pauseTimer">Pause</button>
+                                <button class="btn btn-danger" id="resetTimer">Reset</button>
+                            </div>
+                            <div class="col-12">
+                                <div class="countdown-display text-center">
+                                    <h1 id="countdownDisplay">00:00:00</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stopwatch -->
+                    <div class="options-section mb-4">
+                        <h5 class="mb-3">Stopwatch</h5>
+                        <div class="text-center">
+                            <div class="stopwatch-display mb-3">
+                                <h1 id="stopwatchDisplay">00:00:00.000</h1>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-primary" id="startStopwatch">Start</button>
+                                <button class="btn btn-warning" id="pauseStopwatch">Pause</button>
+                                <button class="btn btn-info" id="lapStopwatch">Lap</button>
+                                <button class="btn btn-danger" id="resetStopwatch">Reset</button>
+                            </div>
+                            <div class="mt-3">
+                                <div class="table-responsive">
+                                    <table class="table table-sm" id="lapTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Lap</th>
+                                                <th>Time</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Event Modal -->
+                    <div class="modal fade" id="addEventModal" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Add Event</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="eventForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Event Title</label>
+                                            <input type="text" class="form-control" id="eventTitle" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="eventDate" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Time</label>
+                                            <input type="time" class="form-control" id="eventTime">
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" id="saveEvent">Save Event</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Common Conversions -->
+                    <div class="options-section">
+                        <h5 class="mb-3">Common Time Conversions</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered common-conversions">
+                                <thead>
+                                    <tr>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Conversion</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1 Day</td>
+                                        <td>Hours</td>
+                                        <td>24 Hours</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1 Hour</td>
+                                        <td>Minutes</td>
+                                        <td>60 Minutes</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1 Minute</td>
+                                        <td>Seconds</td>
+                                        <td>60 Seconds</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1 Second</td>
+                                        <td>Milliseconds</td>
+                                        <td>1,000 Milliseconds</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1 Week</td>
+                                        <td>Days</td>
+                                        <td>7 Days</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1 Month (avg)</td>
+                                        <td>Days</td>
+                                        <td>30.44 Days</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1 Year</td>
+                                        <td>Days</td>
+                                        <td>365.25 Days (including leap years)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.43/moment-timezone-with-data.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // Time unit conversion constants
+        const timeUnits = {
+            milliseconds: {
+                to: {
+                    seconds: 1/1000,
+                    minutes: 1/60000,
+                    hours: 1/3600000,
+                    days: 1/86400000,
+                    weeks: 1/604800000,
+                    months: 1/2629800000,
+                    years: 1/31557600000
+                }
+            },
+            seconds: {
+                to: {
+                    milliseconds: 1000,
+                    minutes: 1/60,
+                    hours: 1/3600,
+                    days: 1/86400,
+                    weeks: 1/604800,
+                    months: 1/2629800,
+                    years: 1/31557600
+                }
+            },
+            minutes: {
+                to: {
+                    milliseconds: 60000,
+                    seconds: 60,
+                    hours: 1/60,
+                    days: 1/1440,
+                    weeks: 1/10080,
+                    months: 1/43830,
+                    years: 1/525960
+                }
+            },
+            hours: {
+                to: {
+                    milliseconds: 3600000,
+                    seconds: 3600,
+                    minutes: 60,
+                    days: 1/24,
+                    weeks: 1/168,
+                    months: 1/730.5,
+                    years: 1/8766
+                }
+            },
+            days: {
+                to: {
+                    milliseconds: 86400000,
+                    seconds: 86400,
+                    minutes: 1440,
+                    hours: 24,
+                    weeks: 1/7,
+                    months: 1/30.44,
+                    years: 1/365.25
+                }
+            },
+            weeks: {
+                to: {
+                    milliseconds: 604800000,
+                    seconds: 604800,
+                    minutes: 10080,
+                    hours: 168,
+                    days: 7,
+                    months: 1/4.348,
+                    years: 1/52.18
+                }
+            },
+            months: {
+                to: {
+                    milliseconds: 2629800000,
+                    seconds: 2629800,
+                    minutes: 43830,
+                    hours: 730.5,
+                    days: 30.44,
+                    weeks: 4.348,
+                    years: 1/12
+                }
+            },
+            years: {
+                to: {
+                    milliseconds: 31557600000,
+                    seconds: 31557600,
+                    minutes: 525960,
+                    hours: 8766,
+                    days: 365.25,
+                    weeks: 52.18,
+                    months: 12
+                }
+            }
+        };
+
+        // DOM elements
+        const timeValue = document.getElementById('timeValue');
+        const fromUnit = document.getElementById('fromUnit');
+        const toUnit = document.getElementById('toUnit');
+        const unitResult = document.getElementById('unitResult');
+        const datetime = document.getElementById('datetime');
+        const fromTimezone = document.getElementById('fromTimezone');
+        const toTimezone = document.getElementById('toTimezone');
+        const timezoneResult = document.getElementById('timezoneResult');
+
+        // Initialize timezone selects
+        const timezones = moment.tz.names();
+        const userTimezone = moment.tz.guess();
+
+        timezones.forEach(timezone => {
+            const fromOption = new Option(timezone, timezone);
+            const toOption = new Option(timezone, timezone);
+            
+            if (timezone === userTimezone) {
+                fromOption.selected = true;
+            }
+            
+            fromTimezone.add(fromOption);
+            toTimezone.add(toOption);
+        });
+
+        // Set current date and time
+        datetime.value = moment().format('YYYY-MM-DDTHH:mm');
+
+        // Convert time units
+        function convertTimeUnits() {
+            const value = parseFloat(timeValue.value);
+            const from = fromUnit.value;
+            const to = toUnit.value;
+
+            if (isNaN(value)) {
+                unitResult.textContent = 'Please enter a valid number';
+                return;
+            }
+
+            let result;
+            if (from === to) {
+                result = value;
+            } else {
+                result = value * timeUnits[from].to[to];
+            }
+
+            // Format the result
+            result = formatResult(result);
+            unitResult.textContent = `${result} ${to.charAt(0).toUpperCase() + to.slice(1)}`;
+        }
+
+        // Convert timezones
+        function convertTimezones() {
+            const date = datetime.value;
+            const from = fromTimezone.value;
+            const to = toTimezone.value;
+
+            if (!date) {
+                timezoneResult.textContent = 'Please select a date and time';
+                return;
+            }
+
+            const time = moment.tz(date, from);
+            const converted = time.clone().tz(to);
+
+            timezoneResult.textContent = `${converted.format('YYYY-MM-DD HH:mm:ss')} ${converted.format('z')}`;
+        }
+
+        // Format large/small numbers
+        function formatResult(number) {
+            if (number === 0) return '0';
+            
+            const abs = Math.abs(number);
+            if (abs < 0.000001 || abs >= 1000000) {
+                return number.toExponential(6);
+            }
+            
+            return number.toLocaleString(undefined, {
+                maximumFractionDigits: 6,
+                minimumFractionDigits: 0
+            });
+        }
+
+        // Event listeners
+        [timeValue, fromUnit, toUnit].forEach(element => {
+            element.addEventListener('input', convertTimeUnits);
+        });
+
+        [datetime, fromTimezone, toTimezone].forEach(element => {
+            element.addEventListener('change', convertTimezones);
+        });
+
+        // Initial conversions
+        convertTimeUnits();
+        convertTimezones();
+
+        // Calendar functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: JSON.parse(localStorage.getItem('calendarEvents') || '[]'),
+                eventClick: function(info) {
+                    if (confirm('Delete event?')) {
+                        info.event.remove();
+                        saveEvents();
+                    }
+                }
+            });
+            calendar.render();
+
+            function saveEvents() {
+                const events = calendar.getEvents().map(event => ({
+                    title: event.title,
+                    start: event.start,
+                    end: event.end
+                }));
+                localStorage.setItem('calendarEvents', JSON.stringify(events));
+                updateEventList();
+            }
+
+            function updateEventList() {
+                const eventList = document.getElementById('eventList');
+                eventList.innerHTML = '';
+                calendar.getEvents().forEach(event => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item';
+                    item.textContent = `${event.title} - ${moment(event.start).format('MMM D, YYYY')}`;
+                    eventList.appendChild(item);
+                });
+            }
+
+            document.getElementById('saveEvent').addEventListener('click', function() {
+                const title = document.getElementById('eventTitle').value;
+                const date = document.getElementById('eventDate').value;
+                const time = document.getElementById('eventTime').value;
+                
+                if (title && date) {
+                    calendar.addEvent({
+                        title: title,
+                        start: time ? `${date}T${time}` : date
+                    });
+                    saveEvents();
+                    $('#addEventModal').modal('hide');
+                    document.getElementById('eventForm').reset();
+                }
+            });
+
+            updateEventList();
+        });
+
+        // Countdown Timer functionality
+        let countdownInterval;
+        let remainingTime = 0;
+
+        function updateCountdownDisplay() {
+            const hours = Math.floor(remainingTime / 3600);
+            const minutes = Math.floor((remainingTime % 3600) / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById('countdownDisplay').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        document.getElementById('startTimer').addEventListener('click', function() {
+            if (!countdownInterval) {
+                const hours = parseInt(document.getElementById('hours').value) || 0;
+                const minutes = parseInt(document.getElementById('minutes').value) || 0;
+                const seconds = parseInt(document.getElementById('seconds').value) || 0;
+                
+                remainingTime = hours * 3600 + minutes * 60 + seconds;
+                
+                if (remainingTime > 0) {
+                    countdownInterval = setInterval(function() {
+                        remainingTime--;
+                        updateCountdownDisplay();
+                        
+                        if (remainingTime <= 0) {
+                            clearInterval(countdownInterval);
+                            countdownInterval = null;
+                            alert('Time is up!');
+                        }
+                    }, 1000);
+                }
+            }
+        });
+
+        document.getElementById('pauseTimer').addEventListener('click', function() {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        });
+
+        document.getElementById('resetTimer').addEventListener('click', function() {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            remainingTime = 0;
+            updateCountdownDisplay();
+            document.getElementById('hours').value = '';
+            document.getElementById('minutes').value = '';
+            document.getElementById('seconds').value = '';
+        });
+
+        // Stopwatch functionality
+        let stopwatchInterval;
+        let stopwatchTime = 0;
+        let lapCount = 0;
+        let lastLapTime = 0;
+
+        function updateStopwatchDisplay() {
+            const milliseconds = stopwatchTime % 1000;
+            const seconds = Math.floor((stopwatchTime / 1000) % 60);
+            const minutes = Math.floor((stopwatchTime / (1000 * 60)) % 60);
+            const hours = Math.floor(stopwatchTime / (1000 * 60 * 60));
+            
+            document.getElementById('stopwatchDisplay').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+        }
+
+        document.getElementById('startStopwatch').addEventListener('click', function() {
+            if (!stopwatchInterval) {
+                const startTime = Date.now() - stopwatchTime;
+                stopwatchInterval = setInterval(function() {
+                    stopwatchTime = Date.now() - startTime;
+                    updateStopwatchDisplay();
+                }, 10);
+            }
+        });
+
+        document.getElementById('pauseStopwatch').addEventListener('click', function() {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+        });
+
+        document.getElementById('lapStopwatch').addEventListener('click', function() {
+            if (stopwatchInterval) {
+                lapCount++;
+                const lapTime = stopwatchTime - lastLapTime;
+                lastLapTime = stopwatchTime;
+                
+                const tbody = document.querySelector('#lapTable tbody');
+                const row = tbody.insertRow(0);
+                row.innerHTML = `
+                    <td>${lapCount}</td>
+                    <td>${formatLapTime(lapTime)}</td>
+                    <td>${formatLapTime(stopwatchTime)}</td>
+                `;
+            }
+        });
+
+        document.getElementById('resetStopwatch').addEventListener('click', function() {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+            stopwatchTime = 0;
+            lapCount = 0;
+            lastLapTime = 0;
+            updateStopwatchDisplay();
+            document.querySelector('#lapTable tbody').innerHTML = '';
+        });
+
+        function formatLapTime(time) {
+            const milliseconds = time % 1000;
+            const seconds = Math.floor((time / 1000) % 60);
+            const minutes = Math.floor((time / (1000 * 60)) % 60);
+            const hours = Math.floor(time / (1000 * 60 * 60));
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+        }
+    </script>
+</body>
+</html> 

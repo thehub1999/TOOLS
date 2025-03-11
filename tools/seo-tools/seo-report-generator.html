@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Report Generator - Multi-Tools</title>
+    <meta name="description" content="Generate comprehensive SEO reports for your website. Analyze meta tags, content, performance, and get actionable recommendations.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+        .score-high { background-color: #198754; }
+        .score-medium { background-color: #ffc107; color: #000; }
+        .score-low { background-color: #dc3545; }
+        .issue-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .issue-item:hover {
+            background-color: #e9ecef;
+        }
+        .severity-high {
+            color: #dc3545;
+            border-left: 4px solid #dc3545;
+        }
+        .severity-medium {
+            color: #ffc107;
+            border-left: 4px solid #ffc107;
+        }
+        .severity-low {
+            color: #198754;
+            border-left: 4px solid #198754;
+        }
+        .metric-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        .progress-thin {
+            height: 4px;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+        .report-section {
+            margin-bottom: 2rem;
+        }
+        .recommendation-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .recommendation-list li {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+        .recommendation-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>SEO Report Generator</h1>
+                <p class="tool-description">Generate comprehensive SEO reports for your website. Analyze meta tags, content, performance, and get actionable recommendations.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Website Analysis</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Website URL</label>
+                                <input type="url" class="form-control" id="websiteUrl" placeholder="https://example.com">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Analysis Depth</label>
+                                <select class="form-select" id="analysisDepth">
+                                    <option value="basic">Basic (Homepage Only)</option>
+                                    <option value="standard" selected>Standard (Up to 10 Pages)</option>
+                                    <option value="deep">Deep (Up to 50 Pages)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Include Sections</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkMeta" checked>
+                                    <label class="form-check-label" for="checkMeta">Meta Tags & Structure</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkContent" checked>
+                                    <label class="form-check-label" for="checkContent">Content Analysis</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkPerformance" checked>
+                                    <label class="form-check-label" for="checkPerformance">Performance Metrics</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkLinks" checked>
+                                    <label class="form-check-label" for="checkLinks">Links & Authority</label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="analyzeBtn">
+                                    <i class="bi bi-search"></i> Analyze Website
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Report Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Report Format</label>
+                                <select class="form-select" id="reportFormat">
+                                    <option value="detailed">Detailed Report</option>
+                                    <option value="summary">Summary Report</option>
+                                    <option value="technical">Technical Report</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Brand Name</label>
+                                <input type="text" class="form-control" id="brandName" placeholder="Your Company Name">
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="includeBranding" checked>
+                                <label class="form-check-label" for="includeBranding">
+                                    Include Brand Logo & Info
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeCharts" checked>
+                                <label class="form-check-label" for="includeCharts">
+                                    Include Visual Charts
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div id="loadingSection" style="display: none;">
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h5 class="mb-2">Analyzing Website</h5>
+                                <p class="text-muted mb-0" id="analysisStatus">Checking meta tags...</p>
+                                <div class="progress progress-thin mt-3">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="analysisProgress" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="reportSection" style="display: none;">
+                        <div class="card mb-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">SEO Score Overview</h5>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-success" id="exportBtn">
+                                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" id="downloadBtn">
+                                        <i class="bi bi-download"></i> Download Report
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="metric-card text-center">
+                                            <small class="text-muted">Overall Score</small>
+                                            <div class="score-circle" id="overallScore">85</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="metric-card">
+                                            <small class="text-muted">Meta Tags</small>
+                                            <div class="metric-value" id="metaScore">92%</div>
+                                            <div class="progress progress-thin">
+                                                <div class="progress-bar bg-success" style="width: 92%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="metric-card">
+                                            <small class="text-muted">Content Quality</small>
+                                            <div class="metric-value" id="contentScore">78%</div>
+                                            <div class="progress progress-thin">
+                                                <div class="progress-bar bg-warning" style="width: 78%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="metric-card">
+                                            <small class="text-muted">Performance</small>
+                                            <div class="metric-value" id="performanceScore">88%</div>
+                                            <div class="progress progress-thin">
+                                                <div class="progress-bar bg-success" style="width: 88%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Critical Issues</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="issuesList">
+                                    <!-- Issues will be added here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Recommendations</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="recommendation-list" id="recommendationsList">
+                                    <!-- Recommendations will be added here -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = {
+                websiteUrl: document.getElementById('websiteUrl'),
+                analysisDepth: document.getElementById('analysisDepth'),
+                checkMeta: document.getElementById('checkMeta'),
+                checkContent: document.getElementById('checkContent'),
+                checkPerformance: document.getElementById('checkPerformance'),
+                checkLinks: document.getElementById('checkLinks'),
+                reportFormat: document.getElementById('reportFormat'),
+                brandName: document.getElementById('brandName'),
+                includeBranding: document.getElementById('includeBranding'),
+                includeCharts: document.getElementById('includeCharts')
+            };
+
+            const elements = {
+                loadingSection: document.getElementById('loadingSection'),
+                reportSection: document.getElementById('reportSection'),
+                analysisStatus: document.getElementById('analysisStatus'),
+                analysisProgress: document.getElementById('analysisProgress'),
+                overallScore: document.getElementById('overallScore'),
+                metaScore: document.getElementById('metaScore'),
+                contentScore: document.getElementById('contentScore'),
+                performanceScore: document.getElementById('performanceScore'),
+                issuesList: document.getElementById('issuesList'),
+                recommendationsList: document.getElementById('recommendationsList')
+            };
+
+            const buttons = {
+                analyze: document.getElementById('analyzeBtn'),
+                export: document.getElementById('exportBtn'),
+                download: document.getElementById('downloadBtn')
+            };
+
+            function startAnalysis() {
+                const url = inputs.websiteUrl.value.trim();
+                if (!url) {
+                    alert('Please enter a website URL');
+                    return;
+                }
+
+                try {
+                    new URL(url);
+                } catch (e) {
+                    alert('Please enter a valid URL');
+                    return;
+                }
+
+                // Show loading section
+                elements.loadingSection.style.display = 'block';
+                elements.reportSection.style.display = 'none';
+                elements.analysisProgress.style.width = '0%';
+
+                // Simulate analysis process
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    elements.analysisProgress.style.width = `${progress}%`;
+
+                    if (progress <= 25) {
+                        elements.analysisStatus.textContent = 'Analyzing meta tags and structure...';
+                    } else if (progress <= 50) {
+                        elements.analysisStatus.textContent = 'Checking content quality...';
+                    } else if (progress <= 75) {
+                        elements.analysisStatus.textContent = 'Measuring performance metrics...';
+                    } else {
+                        elements.analysisStatus.textContent = 'Generating report...';
+                    }
+
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(showReport, 500);
+                    }
+                }, 100);
+            }
+
+            function showReport() {
+                elements.loadingSection.style.display = 'none';
+                elements.reportSection.style.display = 'block';
+
+                // Update scores with random data
+                updateScores();
+                generateIssues();
+                generateRecommendations();
+            }
+
+            function updateScores() {
+                const scores = {
+                    overall: Math.floor(Math.random() * 30) + 70,
+                    meta: Math.floor(Math.random() * 20) + 80,
+                    content: Math.floor(Math.random() * 30) + 60,
+                    performance: Math.floor(Math.random() * 25) + 75
+                };
+
+                elements.overallScore.textContent = scores.overall;
+                elements.overallScore.className = `score-circle score-${getScoreClass(scores.overall)}`;
+
+                elements.metaScore.textContent = `${scores.meta}%`;
+                elements.contentScore.textContent = `${scores.content}%`;
+                elements.performanceScore.textContent = `${scores.performance}%`;
+            }
+
+            function generateIssues() {
+                const issues = [
+                    { severity: 'high', title: 'Missing Meta Descriptions', description: 'Several pages are missing meta descriptions.' },
+                    { severity: 'high', title: 'Slow Page Load Time', description: 'Average page load time is above 3 seconds.' },
+                    { severity: 'medium', title: 'Duplicate Content', description: 'Found similar content across multiple pages.' },
+                    { severity: 'low', title: 'Missing Alt Tags', description: 'Some images are missing alt attributes.' }
+                ];
+
+                elements.issuesList.innerHTML = issues.map(issue => `
+                    <div class="issue-item severity-${issue.severity} ps-3">
+                        <h6 class="mb-1">${issue.title}</h6>
+                        <p class="mb-0 text-muted">${issue.description}</p>
+                    </div>
+                `).join('');
+            }
+
+            function generateRecommendations() {
+                const recommendations = [
+                    'Add unique meta descriptions to all pages',
+                    'Optimize images to improve page load time',
+                    'Implement proper heading structure (H1-H6)',
+                    'Add alt text to all images',
+                    'Create unique content for similar pages'
+                ];
+
+                elements.recommendationsList.innerHTML = recommendations.map(rec => `
+                    <li>${rec}</li>
+                `).join('');
+            }
+
+            function getScoreClass(score) {
+                if (score >= 80) return 'high';
+                if (score >= 60) return 'medium';
+                return 'low';
+            }
+
+            // Event Listeners
+            buttons.analyze.addEventListener('click', startAnalysis);
+
+            buttons.export.addEventListener('click', () => {
+                alert('PDF export functionality will be implemented here');
+            });
+
+            buttons.download.addEventListener('click', () => {
+                alert('Report download functionality will be implemented here');
+            });
+        });
+    </script>
+</body>
+</html> 

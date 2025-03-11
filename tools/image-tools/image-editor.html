@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor - Multi-Tools</title>
+    <meta name="description" content="Free online image editor with basic editing features, filters, and effects. Edit your images easily with our web-based tool.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <style>
+        .canvas-container {
+            margin: 0 auto;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+        .tool-button {
+            width: 100%;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+        }
+        #imageEditor {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Image Editor</h1>
+                <p class="tool-description">Edit your images with our free online tool. Crop, rotate, add filters, text, and shapes to your images.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <canvas id="imageEditor"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="file" class="form-control" id="imageInput" accept="image/*">
+                                </div>
+                                <div class="col-md-8">
+                                    <button class="btn btn-primary me-2" id="downloadBtn">
+                                        <i class="bi bi-download"></i> Download
+                                    </button>
+                                    <button class="btn btn-danger me-2" id="clearBtn">
+                                        <i class="bi bi-trash"></i> Clear
+                                    </button>
+                                    <button class="btn btn-secondary me-2" id="undoBtn">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Undo
+                                    </button>
+                                    <button class="btn btn-secondary" id="redoBtn">
+                                        <i class="bi bi-arrow-clockwise"></i> Redo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <!-- Tools Panel -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Basic Tools</h5>
+                        </div>
+                        <div class="card-body">
+                            <button class="btn btn-outline-primary tool-button" id="cropBtn">
+                                <i class="bi bi-crop"></i> Crop
+                            </button>
+                            <button class="btn btn-outline-primary tool-button" id="rotateLeftBtn">
+                                <i class="bi bi-arrow-counterclockwise"></i> Rotate Left
+                            </button>
+                            <button class="btn btn-outline-primary tool-button" id="rotateRightBtn">
+                                <i class="bi bi-arrow-clockwise"></i> Rotate Right
+                            </button>
+                            <button class="btn btn-outline-primary tool-button" id="flipHBtn">
+                                <i class="bi bi-arrow-left-right"></i> Flip Horizontal
+                            </button>
+                            <button class="btn btn-outline-primary tool-button" id="flipVBtn">
+                                <i class="bi bi-arrow-down-up"></i> Flip Vertical
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drawing Tools -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Drawing Tools</h5>
+                        </div>
+                        <div class="card-body">
+                            <button class="btn btn-outline-primary tool-button" id="brushBtn">
+                                <i class="bi bi-brush"></i> Brush
+                            </button>
+                            <button class="btn btn-outline-primary tool-button" id="eraserBtn">
+                                <i class="bi bi-eraser"></i> Eraser
+                            </button>
+                            <div class="mb-3">
+                                <label class="form-label">Brush Size</label>
+                                <input type="range" class="form-range" id="brushSize" min="1" max="50" value="5">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Color</label>
+                                <input type="color" class="color-picker" id="colorPicker" value="#000000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shapes and Text -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Shapes & Text</h5>
+                        </div>
+                        <div class="card-body">
+                            <button class="btn btn-outline-primary tool-button" id="rectangleBtn">
+                                <i class="bi bi-square"></i> Rectangle
+                            </button>
+                            <button class="btn btn-outline-primary tool-button" id="circleBtn">
+                                <i class="bi bi-circle"></i> Circle
+                            </button>
+                            <button class="btn btn-outline-primary tool-button" id="triangleBtn">
+                                <i class="bi bi-triangle"></i> Triangle
+                            </button>
+                            <button class="btn btn-outline-primary tool-button" id="textBtn">
+                                <i class="bi bi-text-left"></i> Add Text
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Filters</h5>
+                        </div>
+                        <div class="card-body">
+                            <button class="btn btn-outline-primary tool-button" id="grayscaleBtn">Grayscale</button>
+                            <button class="btn btn-outline-primary tool-button" id="sepiaBtn">Sepia</button>
+                            <button class="btn btn-outline-primary tool-button" id="invertBtn">Invert</button>
+                            <button class="btn btn-outline-primary tool-button" id="brightnessBtn">Brightness</button>
+                            <div class="mb-3">
+                                <label class="form-label">Brightness</label>
+                                <input type="range" class="form-range" id="brightnessRange" min="-100" max="100" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Fabric.js canvas
+            const canvas = new fabric.Canvas('imageEditor', {
+                width: 800,
+                height: 600
+            });
+
+            // History for undo/redo
+            let history = [];
+            let historyIndex = -1;
+            const maxHistorySteps = 20;
+
+            // Save state to history
+            function saveState() {
+                historyIndex++;
+                history = history.slice(0, historyIndex);
+                history.push(JSON.stringify(canvas));
+                if (history.length > maxHistorySteps) {
+                    history.shift();
+                    historyIndex--;
+                }
+                updateUndoRedoButtons();
+            }
+
+            // Update undo/redo buttons state
+            function updateUndoRedoButtons() {
+                document.getElementById('undoBtn').disabled = historyIndex < 1;
+                document.getElementById('redoBtn').disabled = historyIndex >= history.length - 1;
+            }
+
+            // Load image
+            document.getElementById('imageInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        fabric.Image.fromURL(event.target.result, (img) => {
+                            canvas.clear();
+                            // Scale image to fit canvas
+                            const scale = Math.min(
+                                canvas.width / img.width,
+                                canvas.height / img.height
+                            );
+                            img.scale(scale);
+                            img.center();
+                            canvas.add(img);
+                            canvas.renderAll();
+                            saveState();
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Basic tools
+            document.getElementById('rotateLeftBtn').addEventListener('click', () => {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    activeObject.rotate(activeObject.angle - 90);
+                } else {
+                    canvas.getObjects().forEach(obj => {
+                        obj.rotate(obj.angle - 90);
+                    });
+                }
+                canvas.renderAll();
+                saveState();
+            });
+
+            document.getElementById('rotateRightBtn').addEventListener('click', () => {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    activeObject.rotate(activeObject.angle + 90);
+                } else {
+                    canvas.getObjects().forEach(obj => {
+                        obj.rotate(obj.angle + 90);
+                    });
+                }
+                canvas.renderAll();
+                saveState();
+            });
+
+            document.getElementById('flipHBtn').addEventListener('click', () => {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    activeObject.flipX = !activeObject.flipX;
+                } else {
+                    canvas.getObjects().forEach(obj => {
+                        obj.flipX = !obj.flipX;
+                    });
+                }
+                canvas.renderAll();
+                saveState();
+            });
+
+            document.getElementById('flipVBtn').addEventListener('click', () => {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject) {
+                    activeObject.flipY = !activeObject.flipY;
+                } else {
+                    canvas.getObjects().forEach(obj => {
+                        obj.flipY = !obj.flipY;
+                    });
+                }
+                canvas.renderAll();
+                saveState();
+            });
+
+            // Drawing tools
+            let isDrawing = false;
+            document.getElementById('brushBtn').addEventListener('click', () => {
+                canvas.isDrawingMode = true;
+                canvas.freeDrawingBrush.width = parseInt(document.getElementById('brushSize').value);
+                canvas.freeDrawingBrush.color = document.getElementById('colorPicker').value;
+            });
+
+            document.getElementById('eraserBtn').addEventListener('click', () => {
+                canvas.isDrawingMode = true;
+                canvas.freeDrawingBrush.width = parseInt(document.getElementById('brushSize').value);
+                canvas.freeDrawingBrush.color = '#ffffff';
+            });
+
+            document.getElementById('brushSize').addEventListener('change', (e) => {
+                canvas.freeDrawingBrush.width = parseInt(e.target.value);
+            });
+
+            document.getElementById('colorPicker').addEventListener('change', (e) => {
+                canvas.freeDrawingBrush.color = e.target.value;
+            });
+
+            // Shapes
+            document.getElementById('rectangleBtn').addEventListener('click', () => {
+                const rect = new fabric.Rect({
+                    left: 100,
+                    top: 100,
+                    width: 100,
+                    height: 100,
+                    fill: document.getElementById('colorPicker').value
+                });
+                canvas.add(rect);
+                canvas.setActiveObject(rect);
+                saveState();
+            });
+
+            document.getElementById('circleBtn').addEventListener('click', () => {
+                const circle = new fabric.Circle({
+                    left: 100,
+                    top: 100,
+                    radius: 50,
+                    fill: document.getElementById('colorPicker').value
+                });
+                canvas.add(circle);
+                canvas.setActiveObject(circle);
+                saveState();
+            });
+
+            document.getElementById('triangleBtn').addEventListener('click', () => {
+                const triangle = new fabric.Triangle({
+                    left: 100,
+                    top: 100,
+                    width: 100,
+                    height: 100,
+                    fill: document.getElementById('colorPicker').value
+                });
+                canvas.add(triangle);
+                canvas.setActiveObject(triangle);
+                saveState();
+            });
+
+            // Text
+            document.getElementById('textBtn').addEventListener('click', () => {
+                const text = new fabric.IText('Double click to edit', {
+                    left: 100,
+                    top: 100,
+                    fontFamily: 'Arial',
+                    fill: document.getElementById('colorPicker').value,
+                    fontSize: 20
+                });
+                canvas.add(text);
+                canvas.setActiveObject(text);
+                saveState();
+            });
+
+            // Filters
+            document.getElementById('grayscaleBtn').addEventListener('click', () => {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    activeObject.filters.push(new fabric.Image.filters.Grayscale());
+                    activeObject.applyFilters();
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            document.getElementById('sepiaBtn').addEventListener('click', () => {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    activeObject.filters.push(new fabric.Image.filters.Sepia());
+                    activeObject.applyFilters();
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            document.getElementById('invertBtn').addEventListener('click', () => {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    activeObject.filters.push(new fabric.Image.filters.Invert());
+                    activeObject.applyFilters();
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            document.getElementById('brightnessRange').addEventListener('change', (e) => {
+                const activeObject = canvas.getActiveObject();
+                if (activeObject && activeObject.type === 'image') {
+                    const value = parseInt(e.target.value);
+                    activeObject.filters = activeObject.filters.filter(
+                        filter => !(filter instanceof fabric.Image.filters.Brightness)
+                    );
+                    if (value !== 0) {
+                        activeObject.filters.push(
+                            new fabric.Image.filters.Brightness({ brightness: value / 100 })
+                        );
+                    }
+                    activeObject.applyFilters();
+                    canvas.renderAll();
+                    saveState();
+                }
+            });
+
+            // Undo/Redo
+            document.getElementById('undoBtn').addEventListener('click', () => {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    canvas.loadFromJSON(history[historyIndex], () => {
+                        canvas.renderAll();
+                        updateUndoRedoButtons();
+                    });
+                }
+            });
+
+            document.getElementById('redoBtn').addEventListener('click', () => {
+                if (historyIndex < history.length - 1) {
+                    historyIndex++;
+                    canvas.loadFromJSON(history[historyIndex], () => {
+                        canvas.renderAll();
+                        updateUndoRedoButtons();
+                    });
+                }
+            });
+
+            // Clear canvas
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the canvas?')) {
+                    canvas.clear();
+                    saveState();
+                }
+            });
+
+            // Download
+            document.getElementById('downloadBtn').addEventListener('click', () => {
+                const link = document.createElement('a');
+                link.download = 'edited-image.png';
+                link.href = canvas.toDataURL({
+                    format: 'png',
+                    quality: 0.8
+                });
+                link.click();
+            });
+
+            // Save state after object modifications
+            canvas.on('object:modified', saveState);
+            canvas.on('object:added', saveState);
+            canvas.on('object:removed', saveState);
+
+            // Initialize history
+            saveState();
+        });
+    </script>
+</body>
+</html> 

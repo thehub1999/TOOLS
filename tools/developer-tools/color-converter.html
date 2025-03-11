@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Converter - Free Online Tool</title>
+    <meta name="description" content="Free online color converter tool. Convert between RGB, HEX, HSL, and HSV color formats.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .converter-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .options-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .color-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+        }
+        .color-input {
+            width: 100%;
+            height: 38px;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .color-input:focus {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .color-format {
+            margin-bottom: 1rem;
+        }
+        .color-format label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">Color Converter</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="converter-card">
+                    <!-- Color Preview -->
+                    <div class="color-preview" id="colorPreview"></div>
+
+                    <!-- Color Inputs -->
+                    <div class="options-section">
+                        <div class="row">
+                            <!-- HEX Input -->
+                            <div class="col-md-6 color-format">
+                                <label for="hexInput">HEX</label>
+                                <input type="text" class="color-input" id="hexInput" placeholder="#000000" maxlength="7">
+                            </div>
+                            <!-- RGB Input -->
+                            <div class="col-md-6 color-format">
+                                <label>RGB</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="rgbR" placeholder="R" min="0" max="255">
+                                    <input type="number" class="form-control" id="rgbG" placeholder="G" min="0" max="255">
+                                    <input type="number" class="form-control" id="rgbB" placeholder="B" min="0" max="255">
+                                </div>
+                            </div>
+                            <!-- HSL Input -->
+                            <div class="col-md-6 color-format">
+                                <label>HSL</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="hslH" placeholder="H" min="0" max="360">
+                                    <input type="number" class="form-control" id="hslS" placeholder="S" min="0" max="100">
+                                    <input type="number" class="form-control" id="hslL" placeholder="L" min="0" max="100">
+                                </div>
+                            </div>
+                            <!-- HSV Input -->
+                            <div class="col-md-6 color-format">
+                                <label>HSV</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="hsvH" placeholder="H" min="0" max="360">
+                                    <input type="number" class="form-control" id="hsvS" placeholder="S" min="0" max="100">
+                                    <input type="number" class="form-control" id="hsvV" placeholder="V" min="0" max="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Color Information -->
+                    <div class="options-section">
+                        <h5 class="mb-3">Color Information</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th>Format</th>
+                                        <th>Value</th>
+                                        <th>CSS</th>
+                                    </tr>
+                                    <tr>
+                                        <td>HEX</td>
+                                        <td id="hexInfo">#000000</td>
+                                        <td><code id="hexCss">#000000</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>RGB</td>
+                                        <td id="rgbInfo">0, 0, 0</td>
+                                        <td><code id="rgbCss">rgb(0, 0, 0)</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>HSL</td>
+                                        <td id="hslInfo">0°, 0%, 0%</td>
+                                        <td><code id="hslCss">hsl(0, 0%, 0%)</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>HSV</td>
+                                        <td id="hsvInfo">0°, 0%, 0%</td>
+                                        <td>N/A</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Color Palette Generator -->
+                    <div class="options-section">
+                        <h5 class="mb-3">Color Palette Generator</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Base Color</label>
+                                <input type="color" class="form-control form-control-color w-100" id="baseColor" value="#0d6efd">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Palette Type</label>
+                                <select class="form-select" id="paletteType">
+                                    <option value="monochromatic">Monochromatic</option>
+                                    <option value="analogous">Analogous</option>
+                                    <option value="complementary">Complementary</option>
+                                    <option value="triadic">Triadic</option>
+                                    <option value="tetradic">Tetradic</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div id="colorPalette" class="d-flex justify-content-between" style="height: 100px;">
+                                    <!-- Color swatches will be added here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gradient Generator -->
+                    <div class="options-section mt-4">
+                        <h5 class="mb-3">Gradient Generator</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Start Color</label>
+                                <input type="color" class="form-control form-control-color w-100" id="gradientStart" value="#0d6efd">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">End Color</label>
+                                <input type="color" class="form-control form-control-color w-100" id="gradientEnd" value="#dc3545">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" id="gradientType">
+                                    <option value="linear">Linear</option>
+                                    <option value="radial">Radial</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Direction</label>
+                                <input type="range" class="form-range" id="gradientAngle" min="0" max="360" value="90">
+                                <div class="text-center">
+                                    <span id="gradientAngleValue">90°</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div id="gradientPreview" style="height: 100px; border-radius: 10px;">
+                                    <!-- Gradient preview will be shown here -->
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="gradientCode" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyGradient()">Copy CSS</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Color Blindness Simulator -->
+                    <div class="options-section mt-4">
+                        <h5 class="mb-3">Color Blindness Simulator</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Test Color</label>
+                                <input type="color" class="form-control form-control-color w-100" id="testColor" value="#0d6efd">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Vision Type</label>
+                                <select class="form-select" id="visionType">
+                                    <option value="normal">Normal Vision</option>
+                                    <option value="protanopia">Protanopia (Red-Blind)</option>
+                                    <option value="deuteranopia">Deuteranopia (Green-Blind)</option>
+                                    <option value="tritanopia">Tritanopia (Blue-Blind)</option>
+                                    <option value="achromatopsia">Achromatopsia (No Color)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Original</h6>
+                                                <div id="originalColor" style="height: 100px; border-radius: 5px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Simulated</h6>
+                                                <div id="simulatedColor" style="height: 100px; border-radius: 5px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // DOM Elements
+        const colorPreview = document.getElementById('colorPreview');
+        const hexInput = document.getElementById('hexInput');
+        const rgbR = document.getElementById('rgbR');
+        const rgbG = document.getElementById('rgbG');
+        const rgbB = document.getElementById('rgbB');
+        const hslH = document.getElementById('hslH');
+        const hslS = document.getElementById('hslS');
+        const hslL = document.getElementById('hslL');
+        const hsvH = document.getElementById('hsvH');
+        const hsvS = document.getElementById('hsvS');
+        const hsvV = document.getElementById('hsvV');
+
+        // Info Elements
+        const hexInfo = document.getElementById('hexInfo');
+        const rgbInfo = document.getElementById('rgbInfo');
+        const hslInfo = document.getElementById('hslInfo');
+        const hsvInfo = document.getElementById('hsvInfo');
+        const hexCss = document.getElementById('hexCss');
+        const rgbCss = document.getElementById('rgbCss');
+        const hslCss = document.getElementById('hslCss');
+
+        // Conversion Functions
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+
+                h /= 6;
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function rgbToHsv(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, v = max;
+
+            const d = max - min;
+            s = max === 0 ? 0 : d / max;
+
+            if (max === min) {
+                h = 0;
+            } else {
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                v: Math.round(v * 100)
+            };
+        }
+
+        function hslToRgb(h, s, l) {
+            h /= 360;
+            s /= 100;
+            l /= 100;
+
+            let r, g, b;
+
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+
+        function hsvToRgb(h, s, v) {
+            h /= 360;
+            s /= 100;
+            v /= 100;
+
+            let r, g, b;
+
+            const i = Math.floor(h * 6);
+            const f = h * 6 - i;
+            const p = v * (1 - s);
+            const q = v * (1 - f * s);
+            const t = v * (1 - (1 - f) * s);
+
+            switch (i % 6) {
+                case 0: r = v; g = t; b = p; break;
+                case 1: r = q; g = v; b = p; break;
+                case 2: r = p; g = v; b = t; break;
+                case 3: r = p; g = q; b = v; break;
+                case 4: r = t; g = p; b = v; break;
+                case 5: r = v; g = p; b = q; break;
+            }
+
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+
+        // Update Functions
+        function updateFromHex() {
+            const hex = hexInput.value;
+            if (/^#[0-9A-F]{6}$/i.test(hex)) {
+                const rgb = hexToRgb(hex);
+                const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+                const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+
+                rgbR.value = rgb.r;
+                rgbG.value = rgb.g;
+                rgbB.value = rgb.b;
+                hslH.value = hsl.h;
+                hslS.value = hsl.s;
+                hslL.value = hsl.l;
+                hsvH.value = hsv.h;
+                hsvS.value = hsv.s;
+                hsvV.value = hsv.v;
+
+                updatePreviewAndInfo(hex, rgb, hsl, hsv);
+            }
+        }
+
+        function updateFromRgb() {
+            const r = parseInt(rgbR.value) || 0;
+            const g = parseInt(rgbG.value) || 0;
+            const b = parseInt(rgbB.value) || 0;
+
+            if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
+                const hex = rgbToHex(r, g, b);
+                const hsl = rgbToHsl(r, g, b);
+                const hsv = rgbToHsv(r, g, b);
+
+                hexInput.value = hex;
+                hslH.value = hsl.h;
+                hslS.value = hsl.s;
+                hslL.value = hsl.l;
+                hsvH.value = hsv.h;
+                hsvS.value = hsv.s;
+                hsvV.value = hsv.v;
+
+                updatePreviewAndInfo(hex, {r, g, b}, hsl, hsv);
+            }
+        }
+
+        function updateFromHsl() {
+            const h = parseInt(hslH.value) || 0;
+            const s = parseInt(hslS.value) || 0;
+            const l = parseInt(hslL.value) || 0;
+
+            if (h >= 0 && h <= 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100) {
+                const rgb = hslToRgb(h, s, l);
+                const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+                const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+
+                hexInput.value = hex;
+                rgbR.value = rgb.r;
+                rgbG.value = rgb.g;
+                rgbB.value = rgb.b;
+                hsvH.value = hsv.h;
+                hsvS.value = hsv.s;
+                hsvV.value = hsv.v;
+
+                updatePreviewAndInfo(hex, rgb, {h, s, l}, hsv);
+            }
+        }
+
+        function updateFromHsv() {
+            const h = parseInt(hsvH.value) || 0;
+            const s = parseInt(hsvS.value) || 0;
+            const v = parseInt(hsvV.value) || 0;
+
+            if (h >= 0 && h <= 360 && s >= 0 && s <= 100 && v >= 0 && v <= 100) {
+                const rgb = hsvToRgb(h, s, v);
+                const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+                const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+                hexInput.value = hex;
+                rgbR.value = rgb.r;
+                rgbG.value = rgb.g;
+                rgbB.value = rgb.b;
+                hslH.value = hsl.h;
+                hslS.value = hsl.s;
+                hslL.value = hsl.l;
+
+                updatePreviewAndInfo(hex, rgb, hsl, {h, s, v});
+            }
+        }
+
+        function updatePreviewAndInfo(hex, rgb, hsl, hsv) {
+            // Update color preview
+            colorPreview.style.backgroundColor = hex;
+
+            // Update information display
+            hexInfo.textContent = hex;
+            rgbInfo.textContent = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
+            hslInfo.textContent = `${hsl.h}°, ${hsl.s}%, ${hsl.l}%`;
+            hsvInfo.textContent = `${hsv.h}°, ${hsv.s}%, ${hsv.v}%`;
+
+            // Update CSS values
+            hexCss.textContent = hex;
+            rgbCss.textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            hslCss.textContent = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+        }
+
+        // Event Listeners
+        hexInput.addEventListener('input', () => {
+            if (hexInput.value.length === 7) {
+                updateFromHex();
+            }
+        });
+
+        [rgbR, rgbG, rgbB].forEach(input => {
+            input.addEventListener('input', updateFromRgb);
+        });
+
+        [hslH, hslS, hslL].forEach(input => {
+            input.addEventListener('input', updateFromHsl);
+        });
+
+        [hsvH, hsvS, hsvV].forEach(input => {
+            input.addEventListener('input', updateFromHsv);
+        });
+
+        // Initialize with black
+        hexInput.value = '#000000';
+        updateFromHex();
+
+        // Color Palette Generator
+        function generatePalette() {
+            const baseColor = document.getElementById('baseColor').value;
+            const type = document.getElementById('paletteType').value;
+            const palette = document.getElementById('colorPalette');
+            
+            // Convert hex to HSL
+            const rgb = hexToRgb(baseColor);
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            let colors = [];
+
+            switch(type) {
+                case 'monochromatic':
+                    colors = [
+                        `hsl(${hsl.h}, ${hsl.s}%, ${Math.max(0, hsl.l - 30)}%)`,
+                        `hsl(${hsl.h}, ${hsl.s}%, ${Math.max(0, hsl.l - 15)}%)`,
+                        baseColor,
+                        `hsl(${hsl.h}, ${hsl.s}%, ${Math.min(100, hsl.l + 15)}%)`,
+                        `hsl(${hsl.h}, ${hsl.s}%, ${Math.min(100, hsl.l + 30)}%)`
+                    ];
+                    break;
+                case 'analogous':
+                    colors = [
+                        `hsl(${(hsl.h - 40 + 360) % 360}, ${hsl.s}%, ${hsl.l}%)`,
+                        `hsl(${(hsl.h - 20 + 360) % 360}, ${hsl.s}%, ${hsl.l}%)`,
+                        baseColor,
+                        `hsl(${(hsl.h + 20) % 360}, ${hsl.s}%, ${hsl.l}%)`,
+                        `hsl(${(hsl.h + 40) % 360}, ${hsl.s}%, ${hsl.l}%)`
+                    ];
+                    break;
+                case 'complementary':
+                    colors = [
+                        `hsl(${hsl.h}, ${hsl.s}%, ${Math.max(0, hsl.l - 15)}%)`,
+                        baseColor,
+                        `hsl(${hsl.h}, ${hsl.s}%, ${Math.min(100, hsl.l + 15)}%)`,
+                        `hsl(${(hsl.h + 180) % 360}, ${hsl.s}%, ${Math.max(0, hsl.l - 15)}%)`,
+                        `hsl(${(hsl.h + 180) % 360}, ${hsl.s}%, ${hsl.l}%)`
+                    ];
+                    break;
+                case 'triadic':
+                    colors = [
+                        baseColor,
+                        `hsl(${(hsl.h + 120) % 360}, ${hsl.s}%, ${hsl.l}%)`,
+                        `hsl(${(hsl.h + 240) % 360}, ${hsl.s}%, ${hsl.l}%)`,
+                        `hsl(${(hsl.h + 120) % 360}, ${hsl.s}%, ${Math.min(100, hsl.l + 15)}%)`,
+                        `hsl(${(hsl.h + 240) % 360}, ${hsl.s}%, ${Math.min(100, hsl.l + 15)}%)`
+                    ];
+                    break;
+                case 'tetradic':
+                    colors = [
+                        baseColor,
+                        `hsl(${(hsl.h + 90) % 360}, ${hsl.s}%, ${hsl.l}%)`,
+                        `hsl(${(hsl.h + 180) % 360}, ${hsl.s}%, ${hsl.l}%)`,
+                        `hsl(${(hsl.h + 270) % 360}, ${hsl.s}%, ${hsl.l}%)`,
+                        `hsl(${(hsl.h + 360) % 360}, ${hsl.s}%, ${hsl.l}%)`
+                    ];
+                    break;
+            }
+
+            palette.innerHTML = colors.map(color => `
+                <div class="color-swatch" style="flex: 1; background-color: ${color};" title="${color}"></div>
+            `).join('');
+        }
+
+        // Gradient Generator
+        function updateGradient() {
+            const start = document.getElementById('gradientStart').value;
+            const end = document.getElementById('gradientEnd').value;
+            const type = document.getElementById('gradientType').value;
+            const angle = document.getElementById('gradientAngle').value;
+            const preview = document.getElementById('gradientPreview');
+            const code = document.getElementById('gradientCode');
+
+            let gradient;
+            if (type === 'linear') {
+                gradient = `linear-gradient(${angle}deg, ${start}, ${end})`;
+            } else {
+                gradient = `radial-gradient(circle, ${start}, ${end})`;
+            }
+
+            preview.style.background = gradient;
+            code.value = `background: ${gradient};`;
+            document.getElementById('gradientAngleValue').textContent = `${angle}°`;
+        }
+
+        function copyGradient() {
+            const code = document.getElementById('gradientCode');
+            navigator.clipboard.writeText(code.value)
+                .then(() => alert('CSS copied to clipboard!'))
+                .catch(err => console.error('Failed to copy CSS:', err));
+        }
+
+        // Color Blindness Simulator
+        function simulateColorBlindness() {
+            const color = document.getElementById('testColor').value;
+            const type = document.getElementById('visionType').value;
+            const original = document.getElementById('originalColor');
+            const simulated = document.getElementById('simulatedColor');
+
+            original.style.backgroundColor = color;
+
+            // Convert hex to RGB
+            const rgb = hexToRgb(color);
+            let simulatedRgb;
+
+            switch(type) {
+                case 'normal':
+                    simulatedRgb = rgb;
+                    break;
+                case 'protanopia':
+                    simulatedRgb = {
+                        r: 0.567 * rgb.r + 0.433 * rgb.g,
+                        g: 0.558 * rgb.r + 0.442 * rgb.g,
+                        b: 0.242 * rgb.r + 0.758 * rgb.b
+                    };
+                    break;
+                case 'deuteranopia':
+                    simulatedRgb = {
+                        r: 0.625 * rgb.r + 0.375 * rgb.g,
+                        g: 0.7 * rgb.r + 0.3 * rgb.g,
+                        b: 0.3 * rgb.r + 0.7 * rgb.b
+                    };
+                    break;
+                case 'tritanopia':
+                    simulatedRgb = {
+                        r: 0.95 * rgb.r + 0.05 * rgb.b,
+                        g: 0.433 * rgb.r + 0.567 * rgb.g,
+                        b: 0.475 * rgb.r + 0.525 * rgb.b
+                    };
+                    break;
+                case 'achromatopsia':
+                    const gray = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+                    simulatedRgb = { r: gray, g: gray, b: gray };
+                    break;
+            }
+
+            simulated.style.backgroundColor = `rgb(${Math.round(simulatedRgb.r)}, ${Math.round(simulatedRgb.g)}, ${Math.round(simulatedRgb.b)})`;
+        }
+
+        // Add event listeners
+        document.getElementById('baseColor').addEventListener('input', generatePalette);
+        document.getElementById('paletteType').addEventListener('change', generatePalette);
+
+        ['gradientStart', 'gradientEnd', 'gradientType', 'gradientAngle'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateGradient);
+        });
+
+        document.getElementById('testColor').addEventListener('input', simulateColorBlindness);
+        document.getElementById('visionType').addEventListener('change', simulateColorBlindness);
+
+        // Initial updates
+        generatePalette();
+        updateGradient();
+        simulateColorBlindness();
+    </script>
+</body>
+</html> 

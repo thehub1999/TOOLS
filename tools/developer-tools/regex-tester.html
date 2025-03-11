@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regex Tester - Free Online Tool</title>
+    <meta name="description" content="Free online regular expression tester with live testing, flags support, and match highlighting.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tester-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .results-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        .match {
+            background-color: #d4edda;
+            border-radius: 3px;
+            padding: 2px;
+        }
+        .group {
+            background-color: #cce5ff;
+            border-radius: 3px;
+            padding: 2px;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        .test-text {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 200px;
+        }
+        .flag-option {
+            margin-right: 1rem;
+        }
+        .match-info {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .quick-reference {
+            font-size: 0.875rem;
+        }
+        .quick-reference table {
+            margin-bottom: 0;
+        }
+        .quick-reference td {
+            padding: 0.25rem 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">Regex Tester</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="tester-card">
+                    <!-- Input Section -->
+                    <div class="input-section">
+                        <div class="mb-3">
+                            <label for="regex" class="form-label">Regular Expression</label>
+                            <div class="input-group">
+                                <span class="input-group-text">/</span>
+                                <input type="text" class="form-control" id="regex" placeholder="Enter regex pattern">
+                                <span class="input-group-text">/</span>
+                                <input type="text" class="form-control" id="flags" placeholder="flags" style="max-width: 100px;">
+                            </div>
+                            <div id="regexError" class="error"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="testText" class="form-label">Test Text</label>
+                            <textarea class="form-control test-text" id="testText" rows="8" placeholder="Enter text to test against the regular expression"></textarea>
+                        </div>
+
+                        <!-- Flags Quick Reference -->
+                        <div class="quick-reference">
+                            <h6>Flags:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="flag-option">
+                                        <code>g</code> - Global search
+                                    </div>
+                                    <div class="flag-option">
+                                        <code>i</code> - Case-insensitive
+                                    </div>
+                                    <div class="flag-option">
+                                        <code>m</code> - Multiline
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="flag-option">
+                                        <code>s</code> - Dot matches newlines
+                                    </div>
+                                    <div class="flag-option">
+                                        <code>u</code> - Unicode
+                                    </div>
+                                    <div class="flag-option">
+                                        <code>y</code> - Sticky search
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div class="results-section">
+                        <h5 class="mb-3">Results</h5>
+                        
+                        <!-- Match Information -->
+                        <div id="matchInfo" class="match-info">
+                            <div>Total Matches: <span id="matchCount">0</span></div>
+                            <div>Match Positions: <span id="matchPositions"></span></div>
+                        </div>
+
+                        <!-- Highlighted Text -->
+                        <div id="highlightedText" class="mb-4"></div>
+
+                        <!-- Match Details -->
+                        <div id="matchDetails"></div>
+                    </div>
+
+                    <!-- Quick Reference -->
+                    <div class="quick-reference mt-4">
+                        <h5 class="mb-3">Quick Reference</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td><code>.</code></td>
+                                        <td>Any character except newline</td>
+                                        <td><code>^</code></td>
+                                        <td>Start of string</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>*</code></td>
+                                        <td>0 or more</td>
+                                        <td><code>+</code></td>
+                                        <td>1 or more</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>?</code></td>
+                                        <td>0 or 1</td>
+                                        <td><code>{n}</code></td>
+                                        <td>Exactly n times</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>{n,}</code></td>
+                                        <td>n or more times</td>
+                                        <td><code>{n,m}</code></td>
+                                        <td>Between n and m times</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>\d</code></td>
+                                        <td>Digit</td>
+                                        <td><code>\w</code></td>
+                                        <td>Word character</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>\s</code></td>
+                                        <td>Whitespace</td>
+                                        <td><code>[abc]</code></td>
+                                        <td>Any of a, b, or c</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>[^abc]</code></td>
+                                        <td>Not a, b, or c</td>
+                                        <td><code>a|b</code></td>
+                                        <td>a or b</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>()</code></td>
+                                        <td>Group</td>
+                                        <td><code>\1</code></td>
+                                        <td>Backreference to group 1</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regex Pattern Library -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Pattern Library</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <select class="form-select" id="patternCategory">
+                                    <option value="">Select Category</option>
+                                    <option value="email">Email Validation</option>
+                                    <option value="phone">Phone Numbers</option>
+                                    <option value="url">URLs</option>
+                                    <option value="date">Dates</option>
+                                    <option value="password">Password Validation</option>
+                                    <option value="ip">IP Addresses</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-select" id="patternSelect" disabled>
+                                    <option value="">Select Pattern</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <p id="patternDescription" class="text-muted"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Batch Testing -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Batch Testing</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Test Cases (one per line)</label>
+                            <textarea class="form-control" id="batchInput" rows="5" placeholder="Enter test cases, one per line"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="runBatchTest">Run Batch Test</button>
+                        <div class="mt-3">
+                            <table class="table table-striped" id="batchResults">
+                                <thead>
+                                    <tr>
+                                        <th>Test Case</th>
+                                        <th>Result</th>
+                                        <th>Matches</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regex Cheat Sheet -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Regex Cheat Sheet</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="cheatSheetAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#characterClasses">
+                                        Character Classes
+                                    </button>
+                                </h2>
+                                <div id="characterClasses" class="accordion-collapse collapse show" data-bs-parent="#cheatSheetAccordion">
+                                    <div class="accordion-body">
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <tr><td><code>.</code></td><td>Any character except newline</td></tr>
+                                                <tr><td><code>\w</code></td><td>Word character [A-Za-z0-9_]</td></tr>
+                                                <tr><td><code>\d</code></td><td>Digit [0-9]</td></tr>
+                                                <tr><td><code>\s</code></td><td>Whitespace character</td></tr>
+                                                <tr><td><code>[abc]</code></td><td>Any of a, b, or c</td></tr>
+                                                <tr><td><code>[^abc]</code></td><td>Not a, b, or c</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#quantifiers">
+                                        Quantifiers
+                                    </button>
+                                </h2>
+                                <div id="quantifiers" class="accordion-collapse collapse" data-bs-parent="#cheatSheetAccordion">
+                                    <div class="accordion-body">
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <tr><td><code>*</code></td><td>0 or more</td></tr>
+                                                <tr><td><code>+</code></td><td>1 or more</td></tr>
+                                                <tr><td><code>?</code></td><td>0 or 1</td></tr>
+                                                <tr><td><code>{3}</code></td><td>Exactly 3</td></tr>
+                                                <tr><td><code>{3,}</code></td><td>3 or more</td></tr>
+                                                <tr><td><code>{3,5}</code></td><td>3 to 5</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#anchors">
+                                        Anchors
+                                    </button>
+                                </h2>
+                                <div id="anchors" class="accordion-collapse collapse" data-bs-parent="#cheatSheetAccordion">
+                                    <div class="accordion-body">
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <tr><td><code>^</code></td><td>Start of string</td></tr>
+                                                <tr><td><code>$</code></td><td>End of string</td></tr>
+                                                <tr><td><code>\b</code></td><td>Word boundary</td></tr>
+                                                <tr><td><code>\B</code></td><td>Not word boundary</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // DOM Elements
+        const regexInput = document.getElementById('regex');
+        const flagsInput = document.getElementById('flags');
+        const testText = document.getElementById('testText');
+        const regexError = document.getElementById('regexError');
+        const matchCount = document.getElementById('matchCount');
+        const matchPositions = document.getElementById('matchPositions');
+        const highlightedText = document.getElementById('highlightedText');
+        const matchDetails = document.getElementById('matchDetails');
+
+        // Test regex and update results
+        function testRegex() {
+            const pattern = regexInput.value;
+            const flags = flagsInput.value;
+            const text = testText.value;
+
+            // Clear previous results
+            regexError.textContent = '';
+            matchCount.textContent = '0';
+            matchPositions.textContent = '';
+            highlightedText.innerHTML = '';
+            matchDetails.innerHTML = '';
+
+            if (!pattern) return;
+
+            try {
+                const regex = new RegExp(pattern, flags);
+                const matches = [];
+                let match;
+
+                if (flags.includes('g')) {
+                    while ((match = regex.exec(text)) !== null) {
+                        matches.push(match);
+                    }
+                } else {
+                    match = regex.exec(text);
+                    if (match) matches.push(match);
+                }
+
+                // Update match count and positions
+                matchCount.textContent = matches.length;
+                matchPositions.textContent = matches.map(m => m.index).join(', ');
+
+                // Highlight matches in text
+                let highlightedHTML = text;
+                let offset = 0;
+
+                matches.forEach((match, matchIndex) => {
+                    const before = highlightedHTML.slice(0, match.index + offset);
+                    const matchText = highlightedHTML.slice(match.index + offset, match.index + match[0].length + offset);
+                    const after = highlightedHTML.slice(match.index + match[0].length + offset);
+
+                    highlightedHTML = before + `<span class="match">${matchText}</span>` + after;
+                    offset += '<span class="match"></span>'.length;
+
+                    // Add match details
+                    const matchInfo = document.createElement('div');
+                    matchInfo.className = 'mb-3';
+                    matchInfo.innerHTML = `
+                        <h6>Match ${matchIndex + 1}</h6>
+                        <div>Full match: <code>${match[0]}</code></div>
+                        <div>Position: ${match.index}</div>
+                    `;
+
+                    if (match.length > 1) {
+                        const groups = document.createElement('div');
+                        groups.innerHTML = '<h6 class="mt-2">Groups:</h6>';
+                        for (let i = 1; i < match.length; i++) {
+                            groups.innerHTML += `<div>Group ${i}: <code>${match[i] || ''}</code></div>`;
+                        }
+                        matchInfo.appendChild(groups);
+                    }
+
+                    matchDetails.appendChild(matchInfo);
+                });
+
+                highlightedText.innerHTML = `<pre>${highlightedHTML}</pre>`;
+
+            } catch (error) {
+                regexError.textContent = error.message;
+            }
+        }
+
+        // Event listeners
+        regexInput.addEventListener('input', testRegex);
+        flagsInput.addEventListener('input', testRegex);
+        testText.addEventListener('input', testRegex);
+
+        // Initial test text
+        testText.value = `This is a sample text for testing regular expressions.
+You can test various patterns here:
+
+- Email: test@example.com
+- Phone: (123) 456-7890
+- Date: 2024-03-11
+- URL: https://www.example.com
+- IP Address: 192.168.1.1
+
+Try editing the text or the regular expression pattern!`;
+
+        // Example regex
+        regexInput.value = '\\b\\w+@\\w+\\.\\w+\\b';
+        flagsInput.value = 'g';
+        testRegex();
+
+        // Pattern Library
+        const patterns = {
+            email: {
+                'basic': {
+                    pattern: '^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$',
+                    description: 'Basic email validation'
+                },
+                'strict': {
+                    pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+                    description: 'Strict email validation with special characters'
+                }
+            },
+            phone: {
+                'us': {
+                    pattern: '^\\+?1?\\s*\\(?\\d{3}\\)?[-\\s.]?\\d{3}[-\\s.]?\\d{4}$',
+                    description: 'US phone number format'
+                },
+                'international': {
+                    pattern: '^\\+(?:[0-9] ?){6,14}[0-9]$',
+                    description: 'International phone number format'
+                }
+            },
+            url: {
+                'basic': {
+                    pattern: '^https?:\\/\\/[\\w\\-]+(\\.[\\w\\-]+)+[\\w\\-\\.,@?^=%&:\\/~\\+#]*$',
+                    description: 'Basic URL validation'
+                },
+                'strict': {
+                    pattern: '^https?:\\/\\/(www\\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}$',
+                    description: 'Strict URL validation'
+                }
+            },
+            date: {
+                'iso': {
+                    pattern: '^\\d{4}-\\d{2}-\\d{2}$',
+                    description: 'ISO date format (YYYY-MM-DD)'
+                },
+                'us': {
+                    pattern: '^(0?[1-9]|1[0-2])\\/(0?[1-9]|[12]\\d|3[01])\\/\\d{4}$',
+                    description: 'US date format (MM/DD/YYYY)'
+                }
+            },
+            password: {
+                'medium': {
+                    pattern: '^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$',
+                    description: 'At least 8 characters, one letter and one number'
+                },
+                'strong': {
+                    pattern: '^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$',
+                    description: 'At least 8 characters, one letter, one number and one special character'
+                }
+            },
+            ip: {
+                'v4': {
+                    pattern: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+                    description: 'IPv4 address'
+                },
+                'v6': {
+                    pattern: '^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$',
+                    description: 'Simple IPv6 address'
+                }
+            }
+        };
+
+        document.getElementById('patternCategory').addEventListener('change', (e) => {
+            const category = e.target.value;
+            const patternSelect = document.getElementById('patternSelect');
+            patternSelect.innerHTML = '<option value="">Select Pattern</option>';
+            
+            if (category) {
+                patternSelect.disabled = false;
+                Object.keys(patterns[category]).forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+                    patternSelect.appendChild(option);
+                });
+            } else {
+                patternSelect.disabled = true;
+            }
+        });
+
+        document.getElementById('patternSelect').addEventListener('change', (e) => {
+            const category = document.getElementById('patternCategory').value;
+            const pattern = e.target.value;
+            
+            if (category && pattern) {
+                const patternObj = patterns[category][pattern];
+                document.getElementById('regex').value = patternObj.pattern;
+                document.getElementById('patternDescription').textContent = patternObj.description;
+                testRegex();
+            }
+        });
+
+        // Batch Testing
+        document.getElementById('runBatchTest').addEventListener('click', () => {
+            const regex = document.getElementById('regex').value;
+            const flags = document.getElementById('flags').value;
+            const testCases = document.getElementById('batchInput').value.split('\n').filter(line => line.trim());
+            const tbody = document.getElementById('batchResults').querySelector('tbody');
+            tbody.innerHTML = '';
+
+            try {
+                const re = new RegExp(regex, flags);
+                testCases.forEach(testCase => {
+                    const matches = [...testCase.matchAll(re)];
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${testCase}</td>
+                        <td><span class="badge ${matches.length ? 'bg-success' : 'bg-danger'}">${matches.length ? 'Match' : 'No Match'}</span></td>
+                        <td>${matches.length ? matches.map(m => `<code>${m[0]}</code>`).join(', ') : '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                alert('Invalid regular expression');
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Sitemap Generator - Multi-Tools</title>
+    <meta name="description" content="Generate HTML sitemaps for your website with customizable styling, structure, and layout options. Create user-friendly navigation for your visitors.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .url-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .url-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .url-item:hover {
+            background-color: #e9ecef;
+        }
+        .url-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .preview-block {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: white;
+        }
+        .code-block {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .bulk-input {
+            height: 150px;
+            resize: none;
+        }
+        .color-preview {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 0.5rem;
+        }
+        .sitemap-preview ul {
+            margin-bottom: 0.5rem;
+        }
+        .sitemap-preview li {
+            margin-bottom: 0.25rem;
+        }
+        .sitemap-preview a {
+            text-decoration: none;
+        }
+        .sitemap-preview a:hover {
+            text-decoration: underline;
+        }
+        .category-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            margin-left: 0.5rem;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>HTML Sitemap Generator</h1>
+                <p class="tool-description">Generate HTML sitemaps for your website with customizable styling, structure, and layout options. Create user-friendly navigation for your visitors.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Add URLs</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Single URL</label>
+                                <div class="input-group">
+                                    <input type="url" class="form-control" id="singleUrl" placeholder="https://example.com/page">
+                                    <select class="form-select" id="urlCategory" style="max-width: 120px;">
+                                        <option value="">No Category</option>
+                                        <option value="main">Main</option>
+                                        <option value="products">Products</option>
+                                        <option value="services">Services</option>
+                                        <option value="blog">Blog</option>
+                                        <option value="support">Support</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Bulk URLs</label>
+                                <textarea class="form-control bulk-input" id="bulkUrls" placeholder="Format: URL,Category (optional)&#10;https://example.com/page1,main&#10;https://example.com/page2,products"></textarea>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" id="addUrlBtn">
+                                    <i class="bi bi-plus-circle"></i> Add URL
+                                </button>
+                                <button class="btn btn-outline-primary" id="addBulkBtn">
+                                    <i class="bi bi-list-check"></i> Add Bulk URLs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Sitemap Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Layout Style</label>
+                                <select class="form-select" id="layoutStyle">
+                                    <option value="list">Simple List</option>
+                                    <option value="categories">Categorized List</option>
+                                    <option value="columns">Multi-Column</option>
+                                    <option value="tree">Tree Structure</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Link Color</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="linkColor" value="#0d6efd">
+                                    <input type="color" class="form-control form-control-color" id="linkColorPicker" value="#0d6efd">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Category Style</label>
+                                <select class="form-select" id="categoryStyle">
+                                    <option value="headings">Headings</option>
+                                    <option value="badges">Badges</option>
+                                    <option value="sections">Sections with Borders</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Font Size</label>
+                                <select class="form-select" id="fontSize">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="includeDescription" checked>
+                                <label class="form-check-label" for="includeDescription">
+                                    Include Page Title as Description
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="includeLastmod" checked>
+                                <label class="form-check-label" for="includeLastmod">
+                                    Include Last Modified Date
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">URL List</h5>
+                            <button class="btn btn-sm btn-danger" id="clearUrlsBtn">
+                                <i class="bi bi-trash"></i> Clear All
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="url-list" id="urlList">
+                                <!-- URLs will be added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Preview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-block">
+                                <div class="sitemap-preview" id="sitemapPreview">
+                                    <!-- Sitemap preview will appear here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Generated Code</h5>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-success" id="copyBtn">
+                                    <i class="bi bi-clipboard"></i> Copy HTML
+                                </button>
+                                <button class="btn btn-sm btn-primary" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="code-block" id="generatedHtml">
+                                <!-- Generated HTML will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = {
+                singleUrl: document.getElementById('singleUrl'),
+                urlCategory: document.getElementById('urlCategory'),
+                bulkUrls: document.getElementById('bulkUrls'),
+                layoutStyle: document.getElementById('layoutStyle'),
+                linkColor: document.getElementById('linkColor'),
+                linkColorPicker: document.getElementById('linkColorPicker'),
+                categoryStyle: document.getElementById('categoryStyle'),
+                fontSize: document.getElementById('fontSize'),
+                includeDescription: document.getElementById('includeDescription'),
+                includeLastmod: document.getElementById('includeLastmod')
+            };
+
+            const buttons = {
+                addUrl: document.getElementById('addUrlBtn'),
+                addBulk: document.getElementById('addBulkBtn'),
+                clearUrls: document.getElementById('clearUrlsBtn'),
+                copy: document.getElementById('copyBtn'),
+                download: document.getElementById('downloadBtn')
+            };
+
+            const urlList = document.getElementById('urlList');
+            const sitemapPreview = document.getElementById('sitemapPreview');
+            const generatedHtml = document.getElementById('generatedHtml');
+            const urls = new Map();
+
+            // Sync color inputs
+            inputs.linkColorPicker.addEventListener('input', (e) => {
+                inputs.linkColor.value = e.target.value;
+                updateSitemap();
+            });
+
+            inputs.linkColor.addEventListener('input', (e) => {
+                inputs.linkColorPicker.value = e.target.value;
+                updateSitemap();
+            });
+
+            function addUrl(url, category = '') {
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+
+                try {
+                    new URL(url);
+                } catch (e) {
+                    alert('Invalid URL: ' + url);
+                    return;
+                }
+
+                if (urls.has(url)) {
+                    alert('URL already exists in the sitemap');
+                    return;
+                }
+
+                const lastmod = new Date().toLocaleDateString();
+                const title = url.split('/').pop() || 'Home';
+                urls.set(url, { category, lastmod, title });
+
+                const urlItem = document.createElement('div');
+                urlItem.className = 'url-item';
+                urlItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-break">${url}</div>
+                            ${category ? `<span class="badge bg-secondary mt-1">${category}</span>` : ''}
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger delete-url" data-url="${url}">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                `;
+
+                urlList.appendChild(urlItem);
+                updateSitemap();
+            }
+
+            function updateSitemap() {
+                if (urls.size === 0) {
+                    sitemapPreview.innerHTML = '<p class="text-muted">Add URLs to generate sitemap</p>';
+                    generatedHtml.textContent = '';
+                    return;
+                }
+
+                const style = `
+                    <style>
+                        .html-sitemap {
+                            font-family: Arial, sans-serif;
+                            font-size: ${getFontSize()};
+                            line-height: 1.6;
+                        }
+                        .html-sitemap a {
+                            color: ${inputs.linkColor.value};
+                            text-decoration: none;
+                        }
+                        .html-sitemap a:hover {
+                            text-decoration: underline;
+                        }
+                        .html-sitemap .category {
+                            margin: 1rem 0;
+                            ${getCategoryStyle()}
+                        }
+                        .html-sitemap ul {
+                            list-style: none;
+                            padding-left: ${inputs.layoutStyle.value === 'tree' ? '2rem' : '0'};
+                            margin-bottom: 1rem;
+                        }
+                        .html-sitemap li {
+                            margin-bottom: 0.5rem;
+                        }
+                        ${getLayoutStyle()}
+                    </style>`;
+
+                let html = `<div class="html-sitemap">\n`;
+
+                if (inputs.layoutStyle.value === 'categories') {
+                    const categories = new Map();
+                    for (const [url, data] of urls) {
+                        const cat = data.category || 'Uncategorized';
+                        if (!categories.has(cat)) {
+                            categories.set(cat, []);
+                        }
+                        categories.get(cat).push({ url, ...data });
+                    }
+
+                    for (const [category, items] of categories) {
+                        html += `  <div class="category">\n`;
+                        html += `    <h2>${category}</h2>\n`;
+                        html += `    <ul>\n`;
+                        items.forEach(item => {
+                            html += generateUrlItem(item);
+                        });
+                        html += `    </ul>\n`;
+                        html += `  </div>\n`;
+                    }
+                } else {
+                    html += `  <ul>\n`;
+                    for (const [url, data] of urls) {
+                        html += generateUrlItem({ url, ...data });
+                    }
+                    html += `  </ul>\n`;
+                }
+
+                html += `</div>`;
+
+                // Update preview
+                sitemapPreview.innerHTML = html;
+
+                // Update generated code
+                generatedHtml.textContent = style + html;
+            }
+
+            function generateUrlItem(item) {
+                let html = '    <li>';
+                html += `<a href="${item.url}">${item.title}</a>`;
+                
+                if (inputs.includeDescription.checked) {
+                    html += `<small class="text-muted"> - ${item.url}</small>`;
+                }
+                
+                if (inputs.includeLastmod.checked) {
+                    html += `<small class="text-muted"> (Last modified: ${item.lastmod})</small>`;
+                }
+                
+                html += '</li>\n';
+                return html;
+            }
+
+            function getFontSize() {
+                switch (inputs.fontSize.value) {
+                    case 'small': return '0.875rem';
+                    case 'large': return '1.125rem';
+                    default: return '1rem';
+                }
+            }
+
+            function getCategoryStyle() {
+                switch (inputs.categoryStyle.value) {
+                    case 'badges':
+                        return 'display: inline-block; padding: 0.5rem 1rem; background: #f8f9fa; border-radius: 4px;';
+                    case 'sections':
+                        return 'padding: 1rem; border: 1px solid #dee2e6; border-radius: 4px;';
+                    default:
+                        return '';
+                }
+            }
+
+            function getLayoutStyle() {
+                if (inputs.layoutStyle.value === 'columns') {
+                    return `
+                        .html-sitemap ul {
+                            column-count: 2;
+                            column-gap: 2rem;
+                        }
+                        @media (min-width: 768px) {
+                            .html-sitemap ul {
+                                column-count: 3;
+                            }
+                        }`;
+                }
+                return '';
+            }
+
+            // Event Listeners
+            buttons.addUrl.addEventListener('click', () => {
+                const url = inputs.singleUrl.value.trim();
+                if (!url) {
+                    alert('Please enter a URL');
+                    return;
+                }
+                addUrl(url, inputs.urlCategory.value);
+                inputs.singleUrl.value = '';
+            });
+
+            buttons.addBulk.addEventListener('click', () => {
+                const bulkUrls = inputs.bulkUrls.value.trim();
+                if (!bulkUrls) {
+                    alert('Please enter at least one URL');
+                    return;
+                }
+
+                const urlList = bulkUrls.split('\n')
+                    .map(line => {
+                        const [url, category] = line.split(',').map(s => s.trim());
+                        return { url, category };
+                    })
+                    .filter(({ url }) => url);
+
+                urlList.forEach(({ url, category }) => addUrl(url, category));
+                inputs.bulkUrls.value = '';
+            });
+
+            buttons.clearUrls.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all URLs?')) {
+                    urls.clear();
+                    urlList.innerHTML = '';
+                    updateSitemap();
+                }
+            });
+
+            urlList.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-url')) {
+                    const url = e.target.closest('.delete-url').dataset.url;
+                    urls.delete(url);
+                    e.target.closest('.url-item').remove();
+                    updateSitemap();
+                }
+            });
+
+            buttons.copy.addEventListener('click', () => {
+                navigator.clipboard.writeText(generatedHtml.textContent)
+                    .then(() => {
+                        buttons.copy.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                        setTimeout(() => {
+                            buttons.copy.innerHTML = '<i class="bi bi-clipboard"></i> Copy HTML';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        alert('Failed to copy: ' + err);
+                    });
+            });
+
+            buttons.download.addEventListener('click', () => {
+                const blob = new Blob([generatedHtml.textContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'sitemap.html';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            // Settings change listeners
+            Object.values(inputs).forEach(input => {
+                input.addEventListener('change', updateSitemap);
+            });
+
+            // Initial update
+            updateSitemap();
+        });
+    </script>
+</body>
+</html> 

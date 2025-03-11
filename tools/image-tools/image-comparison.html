@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Comparison - Multi-Tools</title>
+    <meta name="description" content="Compare two images side by side or with a slider. Free online image comparison tool.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .comparison-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+        .comparison-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .comparison-image.original {
+            z-index: 1;
+        }
+        .comparison-image.modified {
+            z-index: 2;
+            clip-path: inset(0 50% 0 0);
+        }
+        .comparison-slider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 100%;
+            background: #fff;
+            cursor: ew-resize;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .comparison-slider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .drag-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .drag-area.dragover {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .drag-area img {
+            max-width: 100%;
+            max-height: 150px;
+            margin-bottom: 1rem;
+        }
+        .image-info {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .comparison-mode {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .comparison-mode:hover {
+            transform: translateY(-2px);
+        }
+        .comparison-mode.active {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .mode-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Image Comparison</h1>
+                <p class="tool-description">Compare two images side by side or with a slider. Perfect for before/after comparisons and image analysis.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Original Image</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="originalUploadArea">
+                                <div class="drag-area" id="originalDropZone">
+                                    <i class="bi bi-image display-4 mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted mb-0">Supports: JPG, PNG, WebP (Max 10MB)</p>
+                                    <input type="file" id="originalFileInput" accept="image/*" class="d-none">
+                                </div>
+                            </div>
+                            <div id="originalPreviewArea" class="d-none">
+                                <div class="drag-area">
+                                    <img id="originalPreview" src="" alt="Original Preview">
+                                </div>
+                                <div class="image-info">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">File Name: <span id="originalFileName">-</span></p>
+                                            <p class="mb-1">File Size: <span id="originalFileSize">-</span></p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">Dimensions: <span id="originalDimensions">-</span></p>
+                                            <p class="mb-1">Format: <span id="originalFormat">-</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Modified Image</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="modifiedUploadArea">
+                                <div class="drag-area" id="modifiedDropZone">
+                                    <i class="bi bi-image display-4 mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted mb-0">Supports: JPG, PNG, WebP (Max 10MB)</p>
+                                    <input type="file" id="modifiedFileInput" accept="image/*" class="d-none">
+                                </div>
+                            </div>
+                            <div id="modifiedPreviewArea" class="d-none">
+                                <div class="drag-area">
+                                    <img id="modifiedPreview" src="" alt="Modified Preview">
+                                </div>
+                                <div class="image-info">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">File Name: <span id="modifiedFileName">-</span></p>
+                                            <p class="mb-1">File Size: <span id="modifiedFileSize">-</span></p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">Dimensions: <span id="modifiedDimensions">-</span></p>
+                                            <p class="mb-1">Format: <span id="modifiedFormat">-</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Comparison Options</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card comparison-mode active" data-mode="slider">
+                                <div class="card-body text-center">
+                                    <div class="mode-icon">
+                                        <i class="bi bi-arrows-angle-expand"></i>
+                                    </div>
+                                    <h6 class="card-title">Slider View</h6>
+                                    <p class="card-text small text-muted">Drag slider to compare</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card comparison-mode" data-mode="side-by-side">
+                                <div class="card-body text-center">
+                                    <div class="mode-icon">
+                                        <i class="bi bi-arrows-angle-contract"></i>
+                                    </div>
+                                    <h6 class="card-title">Side by Side</h6>
+                                    <p class="card-text small text-muted">Images displayed next to each other</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card comparison-mode" data-mode="overlay">
+                                <div class="card-body text-center">
+                                    <div class="mode-icon">
+                                        <i class="bi bi-layers"></i>
+                                    </div>
+                                    <h6 class="card-title">Overlay</h6>
+                                    <p class="card-text small text-muted">Images overlaid with transparency</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="comparison-container" id="comparisonContainer" style="display: none;">
+                        <img class="comparison-image original" id="originalImage" src="" alt="Original">
+                        <img class="comparison-image modified" id="modifiedImage" src="" alt="Modified">
+                        <div class="comparison-slider" id="comparisonSlider"></div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-secondary me-2" id="resetBtn">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                        </button>
+                        <button class="btn btn-primary" id="compareBtn" disabled>
+                            <i class="bi bi-arrows-angle-expand"></i> Compare Images
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const originalDropZone = document.getElementById('originalDropZone');
+            const modifiedDropZone = document.getElementById('modifiedDropZone');
+            const originalFileInput = document.getElementById('originalFileInput');
+            const modifiedFileInput = document.getElementById('modifiedFileInput');
+            const originalPreview = document.getElementById('originalPreview');
+            const modifiedPreview = document.getElementById('modifiedPreview');
+            const originalUploadArea = document.getElementById('originalUploadArea');
+            const modifiedUploadArea = document.getElementById('modifiedUploadArea');
+            const originalPreviewArea = document.getElementById('originalPreviewArea');
+            const modifiedPreviewArea = document.getElementById('modifiedPreviewArea');
+            const comparisonContainer = document.getElementById('comparisonContainer');
+            const originalImage = document.getElementById('originalImage');
+            const modifiedImage = document.getElementById('modifiedImage');
+            const comparisonSlider = document.getElementById('comparisonSlider');
+            const resetBtn = document.getElementById('resetBtn');
+            const compareBtn = document.getElementById('compareBtn');
+            const comparisonModes = document.querySelectorAll('.comparison-mode');
+
+            let originalFile = null;
+            let modifiedFile = null;
+            let currentMode = 'slider';
+            let isDragging = false;
+
+            // Handle drag and drop
+            [originalDropZone, modifiedDropZone].forEach(zone => {
+                zone.addEventListener('click', () => {
+                    const input = zone.id === 'originalDropZone' ? originalFileInput : modifiedFileInput;
+                    input.click();
+                });
+                
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('dragover');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('dragover');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                    const file = e.dataTransfer.files[0];
+                    if (zone.id === 'originalDropZone') {
+                        handleOriginalFile(file);
+                    } else {
+                        handleModifiedFile(file);
+                    }
+                });
+            });
+
+            originalFileInput.addEventListener('change', (e) => {
+                handleOriginalFile(e.target.files[0]);
+            });
+
+            modifiedFileInput.addEventListener('change', (e) => {
+                handleModifiedFile(e.target.files[0]);
+            });
+
+            // Handle file selection
+            function handleOriginalFile(file) {
+                if (file && file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    originalFile = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        originalPreview.src = e.target.result;
+                        originalImage.src = e.target.result;
+                        originalUploadArea.classList.add('d-none');
+                        originalPreviewArea.classList.remove('d-none');
+                        updateOriginalInfo(file);
+                        checkComparisonReady();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            function handleModifiedFile(file) {
+                if (file && file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    modifiedFile = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        modifiedPreview.src = e.target.result;
+                        modifiedImage.src = e.target.result;
+                        modifiedUploadArea.classList.add('d-none');
+                        modifiedPreviewArea.classList.remove('d-none');
+                        updateModifiedInfo(file);
+                        checkComparisonReady();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Update image information
+            function updateOriginalInfo(file) {
+                document.getElementById('originalFileName').textContent = file.name;
+                document.getElementById('originalFileSize').textContent = formatBytes(file.size);
+                document.getElementById('originalFormat').textContent = file.type.split('/')[1].toUpperCase();
+
+                const img = new Image();
+                img.onload = () => {
+                    document.getElementById('originalDimensions').textContent = `${img.width} × ${img.height}px`;
+                };
+                img.src = URL.createObjectURL(file);
+            }
+
+            function updateModifiedInfo(file) {
+                document.getElementById('modifiedFileName').textContent = file.name;
+                document.getElementById('modifiedFileSize').textContent = formatBytes(file.size);
+                document.getElementById('modifiedFormat').textContent = file.type.split('/')[1].toUpperCase();
+
+                const img = new Image();
+                img.onload = () => {
+                    document.getElementById('modifiedDimensions').textContent = `${img.width} × ${img.height}px`;
+                };
+                img.src = URL.createObjectURL(file);
+            }
+
+            // Check if both images are ready for comparison
+            function checkComparisonReady() {
+                compareBtn.disabled = !(originalFile && modifiedFile);
+            }
+
+            // Handle comparison mode selection
+            comparisonModes.forEach(mode => {
+                mode.addEventListener('click', () => {
+                    comparisonModes.forEach(m => m.classList.remove('active'));
+                    mode.classList.add('active');
+                    currentMode = mode.dataset.mode;
+                    updateComparisonMode();
+                });
+            });
+
+            // Update comparison mode
+            function updateComparisonMode() {
+                if (!originalFile || !modifiedFile) return;
+
+                comparisonContainer.style.display = 'block';
+                originalImage.style.clipPath = 'none';
+                modifiedImage.style.clipPath = 'none';
+                comparisonSlider.style.display = 'none';
+
+                switch (currentMode) {
+                    case 'slider':
+                        modifiedImage.style.clipPath = 'inset(0 50% 0 0)';
+                        comparisonSlider.style.display = 'block';
+                        break;
+                    case 'side-by-side':
+                        originalImage.style.width = '50%';
+                        modifiedImage.style.width = '50%';
+                        modifiedImage.style.left = '50%';
+                        break;
+                    case 'overlay':
+                        originalImage.style.width = '100%';
+                        modifiedImage.style.width = '100%';
+                        modifiedImage.style.left = '0';
+                        modifiedImage.style.opacity = '0.5';
+                        break;
+                }
+            }
+
+            // Handle slider dragging
+            comparisonSlider.addEventListener('mousedown', () => {
+                isDragging = true;
+                document.addEventListener('mousemove', handleSliderMove);
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', handleSliderMove);
+                    document.removeEventListener('mouseup', () => {});
+                });
+            });
+
+            function handleSliderMove(e) {
+                if (!isDragging) return;
+
+                const container = comparisonContainer.getBoundingClientRect();
+                const position = (e.clientX - container.left) / container.width * 100;
+                const clampedPosition = Math.max(0, Math.min(100, position));
+
+                comparisonSlider.style.left = `${clampedPosition}%`;
+                modifiedImage.style.clipPath = `inset(0 ${100 - clampedPosition}% 0 0)`;
+            }
+
+            // Compare button click handler
+            compareBtn.addEventListener('click', () => {
+                updateComparisonMode();
+            });
+
+            // Reset function
+            resetBtn.addEventListener('click', () => {
+                originalPreview.src = '';
+                modifiedPreview.src = '';
+                originalImage.src = '';
+                modifiedImage.src = '';
+                originalFileInput.value = '';
+                modifiedFileInput.value = '';
+                originalUploadArea.classList.remove('d-none');
+                modifiedUploadArea.classList.remove('d-none');
+                originalPreviewArea.classList.add('d-none');
+                modifiedPreviewArea.classList.add('d-none');
+                comparisonContainer.style.display = 'none';
+                compareBtn.disabled = true;
+
+                document.getElementById('originalFileName').textContent = '-';
+                document.getElementById('originalFileSize').textContent = '-';
+                document.getElementById('originalDimensions').textContent = '-';
+                document.getElementById('originalFormat').textContent = '-';
+                document.getElementById('modifiedFileName').textContent = '-';
+                document.getElementById('modifiedFileSize').textContent = '-';
+                document.getElementById('modifiedDimensions').textContent = '-';
+                document.getElementById('modifiedFormat').textContent = '-';
+            });
+
+            // Helper function
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html> 

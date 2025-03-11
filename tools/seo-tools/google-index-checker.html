@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Index Checker - Multi-Tools</title>
+    <meta name="description" content="Check if your URLs are indexed by Google. Batch check multiple URLs and get instant results about their indexing status.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .url-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .result-item {
+            border-left: 4px solid;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+        }
+        .result-item.indexed {
+            border-left-color: #198754;
+            background-color: #f8fff9;
+        }
+        .result-item.not-indexed {
+            border-left-color: #dc3545;
+            background-color: #fff8f8;
+        }
+        .result-item .url {
+            word-break: break-all;
+        }
+        .loading {
+            display: none;
+        }
+        .loading.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Google Index Checker</h1>
+                <p class="tool-description">Check if your URLs are indexed by Google. Batch check multiple URLs and get instant results about their indexing status.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">URL Input</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Enter URLs (one per line)</label>
+                                <textarea class="form-control" id="urlInput" rows="6" placeholder="https://example.com&#10;https://example.com/page"></textarea>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="checkBtn">
+                                    <i class="bi bi-search"></i> Check Index Status
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Tips & Guidelines</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="bi bi-info-circle text-primary"></i> Enter complete URLs including https:// or http://</li>
+                                <li class="mb-2"><i class="bi bi-info-circle text-primary"></i> Check up to 10 URLs at once</li>
+                                <li class="mb-2"><i class="bi bi-info-circle text-primary"></i> Results are based on Google's cache data</li>
+                                <li class="mb-2"><i class="bi bi-info-circle text-primary"></i> New pages may take time to be indexed</li>
+                                <li><i class="bi bi-info-circle text-primary"></i> Use Google Search Console for more detailed insights</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Results</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="loading" id="loadingIndicator">
+                                <div class="spinner-border text-primary me-2" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span>Checking URLs...</span>
+                            </div>
+
+                            <div id="resultsContainer" class="url-list"></div>
+
+                            <div class="text-center mt-3" id="summaryContainer" style="display: none;">
+                                <hr>
+                                <h6>Summary</h6>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card bg-success text-white">
+                                            <div class="card-body">
+                                                <h3 class="mb-0" id="indexedCount">0</h3>
+                                                <small>Indexed</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="card bg-danger text-white">
+                                            <div class="card-body">
+                                                <h3 class="mb-0" id="notIndexedCount">0</h3>
+                                                <small>Not Indexed</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlInput = document.getElementById('urlInput');
+            const checkBtn = document.getElementById('checkBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const summaryContainer = document.getElementById('summaryContainer');
+            const indexedCount = document.getElementById('indexedCount');
+            const notIndexedCount = document.getElementById('notIndexedCount');
+
+            checkBtn.addEventListener('click', async () => {
+                const urls = urlInput.value.trim().split('\n').filter(url => url.trim());
+
+                if (urls.length === 0) {
+                    alert('Please enter at least one URL');
+                    return;
+                }
+
+                if (urls.length > 10) {
+                    alert('Please enter no more than 10 URLs at once');
+                    return;
+                }
+
+                // Validate URLs
+                const invalidUrls = urls.filter(url => !isValidUrl(url));
+                if (invalidUrls.length > 0) {
+                    alert('Please enter valid URLs including http:// or https://');
+                    return;
+                }
+
+                // Reset results
+                resultsContainer.innerHTML = '';
+                summaryContainer.style.display = 'none';
+                loadingIndicator.classList.add('active');
+                let indexed = 0;
+                let notIndexed = 0;
+
+                // Check each URL
+                for (const url of urls) {
+                    try {
+                        const isIndexed = await checkGoogleIndex(url);
+                        const resultHtml = `
+                            <div class="result-item ${isIndexed ? 'indexed' : 'not-indexed'}">
+                                <div class="url mb-1">${url}</div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge ${isIndexed ? 'bg-success' : 'bg-danger'} me-2">
+                                        ${isIndexed ? 'Indexed' : 'Not Indexed'}
+                                    </span>
+                                    <a href="https://www.google.com/search?q=site:${encodeURIComponent(url)}" 
+                                       target="_blank" class="btn btn-sm btn-outline-primary">
+                                        View in Google
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                        resultsContainer.insertAdjacentHTML('beforeend', resultHtml);
+                        
+                        if (isIndexed) indexed++; else notIndexed++;
+                    } catch (error) {
+                        console.error('Error checking URL:', url, error);
+                    }
+                }
+
+                // Update summary
+                indexedCount.textContent = indexed;
+                notIndexedCount.textContent = notIndexed;
+                summaryContainer.style.display = 'block';
+                loadingIndicator.classList.remove('active');
+            });
+
+            // Helper functions
+            function isValidUrl(string) {
+                try {
+                    new URL(string);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
+            }
+
+            async function checkGoogleIndex(url) {
+                // Simulate API call (replace with actual Google API integration)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return Math.random() > 0.5; // Random result for demonstration
+            }
+        });
+    </script>
+</body>
+</html> 

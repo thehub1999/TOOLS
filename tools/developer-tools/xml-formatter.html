@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Formatter - Free Online Tool</title>
+    <meta name="description" content="Free online XML formatter with syntax highlighting and validation.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .formatter-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .editor-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .editor-section {
+            flex: 1;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        .toolbar {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .toolbar button {
+            margin: 0.25rem;
+        }
+        .CodeMirror {
+            height: 500px;
+            border-radius: 5px;
+        }
+        .validation-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        .validation-success {
+            color: #198754;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">XML Formatter</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="formatter-card">
+                    <!-- Toolbar -->
+                    <div class="toolbar">
+                        <button class="btn btn-primary" id="formatBtn">Format XML</button>
+                        <button class="btn btn-secondary" id="minifyBtn">Minify XML</button>
+                        <button class="btn btn-success" id="validateBtn">Validate XML</button>
+                        <button class="btn btn-info" id="copyBtn">Copy</button>
+                        <button class="btn btn-danger" id="clearBtn">Clear</button>
+                        <div class="float-end">
+                            <label class="me-2">Indent Size:</label>
+                            <select class="form-select form-select-sm d-inline-block" id="indentSize" style="width: auto;">
+                                <option value="2">2 spaces</option>
+                                <option value="4" selected>4 spaces</option>
+                                <option value="8">8 spaces</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Editor Container -->
+                    <div class="editor-container">
+                        <div class="editor-section">
+                            <textarea id="xmlEditor"></textarea>
+                            <div id="validationMessage"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- XPath Tester -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">XPath Tester</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">XPath Expression</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="xpathInput" placeholder="Enter XPath expression">
+                                <button class="btn btn-primary" id="testXPath">Test XPath</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Results</label>
+                            <pre class="bg-light p-3 rounded" id="xpathResults"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- XSLT Transformer -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">XSLT Transformer</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">XSLT Stylesheet</label>
+                            <textarea class="form-control" id="xsltInput" rows="8" placeholder="Enter XSLT stylesheet"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="transformXML">Transform XML</button>
+                        <div class="mt-3">
+                            <label class="form-label">Transformed Output</label>
+                            <pre class="bg-light p-3 rounded" id="transformedOutput"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schema Validation -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Schema Validation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">XML Schema (XSD)</label>
+                            <textarea class="form-control" id="schemaInput" rows="8" placeholder="Enter XML Schema"></textarea>
+                        </div>
+                        <button class="btn btn-primary" id="validateSchema">Validate XML</button>
+                        <div class="mt-3">
+                            <div class="alert" id="validationResult" style="display: none;"></div>
+                            <pre class="bg-light p-3 rounded" id="validationDetails" style="display: none;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // Initialize CodeMirror
+        const editor = CodeMirror.fromTextArea(document.getElementById('xmlEditor'), {
+            mode: 'xml',
+            theme: 'monokai',
+            lineNumbers: true,
+            lineWrapping: true,
+            indentUnit: 4,
+            autoCloseTags: true,
+            matchTags: true,
+            foldGutter: true
+        });
+
+        // DOM Elements
+        const formatBtn = document.getElementById('formatBtn');
+        const minifyBtn = document.getElementById('minifyBtn');
+        const validateBtn = document.getElementById('validateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const indentSize = document.getElementById('indentSize');
+        const validationMessage = document.getElementById('validationMessage');
+
+        // Format XML
+        function formatXML(xml, indent = 4) {
+            let formatted = '';
+            let indentLevel = 0;
+            
+            // Remove existing whitespace
+            xml = xml.replace(/>\s+</g, '><').trim();
+            
+            // Add newlines and indentation
+            xml.split(/>\s*</).forEach(node => {
+                if (node.match(/^\/\w/)) {
+                    // Closing tag
+                    indentLevel--;
+                }
+                
+                formatted += '\n' + ' '.repeat(indentLevel * indent) + '<' + node + '>';
+                
+                if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('?')) {
+                    // Opening tag
+                    indentLevel++;
+                }
+            });
+            
+            return formatted.substring(1);
+        }
+
+        // Minify XML
+        function minifyXML(xml) {
+            return xml
+                .replace(/>\s+</g, '><')
+                .replace(/\s+</g, '<')
+                .replace(/>\s+/g, '>')
+                .trim();
+        }
+
+        // Validate XML
+        function validateXML(xml) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(xml, 'text/xml');
+                const errorNode = doc.querySelector('parsererror');
+                
+                if (errorNode) {
+                    throw new Error(errorNode.textContent);
+                }
+                
+                validationMessage.className = 'validation-success';
+                validationMessage.textContent = 'XML is valid!';
+                return true;
+            } catch (error) {
+                validationMessage.className = 'validation-error';
+                validationMessage.textContent = `XML is invalid: ${error.message}`;
+                return false;
+            }
+        }
+
+        // Event Listeners
+        formatBtn.addEventListener('click', () => {
+            const xml = editor.getValue();
+            if (validateXML(xml)) {
+                const formatted = formatXML(xml, parseInt(indentSize.value));
+                editor.setValue(formatted);
+            }
+        });
+
+        minifyBtn.addEventListener('click', () => {
+            const xml = editor.getValue();
+            if (validateXML(xml)) {
+                const minified = minifyXML(xml);
+                editor.setValue(minified);
+            }
+        });
+
+        validateBtn.addEventListener('click', () => {
+            validateXML(editor.getValue());
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const xml = editor.getValue();
+            navigator.clipboard.writeText(xml)
+                .then(() => alert('XML copied to clipboard!'))
+                .catch(err => console.error('Failed to copy XML:', err));
+        });
+
+        clearBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear the editor?')) {
+                editor.setValue('');
+                validationMessage.textContent = '';
+            }
+        });
+
+        indentSize.addEventListener('change', () => {
+            editor.setOption('indentUnit', parseInt(indentSize.value));
+            if (editor.getValue()) {
+                formatBtn.click();
+            }
+        });
+
+        // XPath Testing
+        document.getElementById('testXPath').addEventListener('click', () => {
+            const xmlString = editor.getValue();
+            const xpath = document.getElementById('xpathInput').value;
+            const resultsContainer = document.getElementById('xpathResults');
+
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+                
+                if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+                    throw new Error('Invalid XML');
+                }
+
+                const result = document.evaluate(xpath, xmlDoc, null, XPathResult.ANY_TYPE, null);
+                let node;
+                let matches = [];
+                
+                switch (result.resultType) {
+                    case XPathResult.NUMBER_TYPE:
+                        matches.push(result.numberValue);
+                        break;
+                    case XPathResult.STRING_TYPE:
+                        matches.push(result.stringValue);
+                        break;
+                    case XPathResult.BOOLEAN_TYPE:
+                        matches.push(result.booleanValue);
+                        break;
+                    default:
+                        while (node = result.iterateNext()) {
+                            matches.push(node.outerHTML || node.nodeValue);
+                        }
+                }
+
+                resultsContainer.innerHTML = matches.length > 0 
+                    ? matches.map((m, i) => `${i + 1}. ${m}`).join('\n')
+                    : 'No matches found';
+                resultsContainer.classList.remove('text-danger');
+            } catch (err) {
+                resultsContainer.innerHTML = `Error: ${err.message}`;
+                resultsContainer.classList.add('text-danger');
+            }
+        });
+
+        // XSLT Transformation
+        document.getElementById('transformXML').addEventListener('click', () => {
+            const xmlString = editor.getValue();
+            const xsltString = document.getElementById('xsltInput').value;
+            const outputContainer = document.getElementById('transformedOutput');
+
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+                const xsltDoc = parser.parseFromString(xsltString, 'text/xml');
+
+                if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+                    throw new Error('Invalid XML');
+                }
+                if (xsltDoc.getElementsByTagName('parsererror').length > 0) {
+                    throw new Error('Invalid XSLT');
+                }
+
+                const xsltProcessor = new XSLTProcessor();
+                xsltProcessor.importStylesheet(xsltDoc);
+                const resultDoc = xsltProcessor.transformToDocument(xmlDoc);
+                
+                const serializer = new XMLSerializer();
+                const resultString = serializer.serializeToString(resultDoc);
+                
+                outputContainer.innerHTML = formatXML(resultString);
+                outputContainer.classList.remove('text-danger');
+            } catch (err) {
+                outputContainer.innerHTML = `Error: ${err.message}`;
+                outputContainer.classList.add('text-danger');
+            }
+        });
+
+        // Schema Validation
+        document.getElementById('validateSchema').addEventListener('click', async () => {
+            const xmlString = editor.getValue();
+            const schemaString = document.getElementById('schemaInput').value;
+            const resultContainer = document.getElementById('validationResult');
+            const detailsContainer = document.getElementById('validationDetails');
+
+            try {
+                // Note: This is a simplified validation that checks basic XML structure
+                // For full XSD validation, you would need a dedicated XML Schema validator library
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+                const schemaDoc = parser.parseFromString(schemaString, 'text/xml');
+
+                const xmlErrors = xmlDoc.getElementsByTagName('parsererror');
+                const schemaErrors = schemaDoc.getElementsByTagName('parsererror');
+
+                if (xmlErrors.length > 0) {
+                    throw new Error('Invalid XML document');
+                }
+                if (schemaErrors.length > 0) {
+                    throw new Error('Invalid XML Schema');
+                }
+
+                // Basic structure validation
+                const rootElement = xmlDoc.documentElement;
+                const schemaElement = schemaDoc.documentElement;
+
+                if (schemaElement.tagName !== 'xs:schema' && schemaElement.tagName !== 'xsd:schema') {
+                    throw new Error('Invalid XML Schema: Root element must be xs:schema');
+                }
+
+                resultContainer.className = 'alert alert-success';
+                resultContainer.innerHTML = 'XML is well-formed and matches basic schema structure';
+                resultContainer.style.display = 'block';
+                
+                detailsContainer.innerHTML = 'Note: This is a basic validation. For complete XSD validation, please use a dedicated XML Schema validator.';
+                detailsContainer.style.display = 'block';
+            } catch (err) {
+                resultContainer.className = 'alert alert-danger';
+                resultContainer.innerHTML = `Validation Error: ${err.message}`;
+                resultContainer.style.display = 'block';
+                
+                detailsContainer.style.display = 'none';
+            }
+        });
+
+        // Initial content
+        const initialContent = `<?xml version="1.0" encoding="UTF-8"?>
+<bookstore>
+    <book category="fiction">
+        <title>The Great Gatsby</title>
+        <author>F. Scott Fitzgerald</author>
+        <year>1925</year>
+        <price>9.99</price>
+    </book>
+    <book category="non-fiction">
+        <title>A Brief History of Time</title>
+        <author>Stephen Hawking</author>
+        <year>1988</year>
+        <price>12.99</price>
+    </book>
+</bookstore>`;
+
+        editor.setValue(initialContent);
+        formatBtn.click();
+    </script>
+</body>
+</html> 

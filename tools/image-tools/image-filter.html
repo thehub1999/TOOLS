@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Filter - Multi-Tools</title>
+    <meta name="description" content="Apply beautiful filters and effects to your images online. Free online image filter tool with various presets and adjustments.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .preview-container {
+            max-width: 100%;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #f8f9fa;
+            text-align: center;
+            padding: 1rem;
+        }
+        .img-container {
+            max-height: 500px;
+            margin-bottom: 1rem;
+        }
+        #preview {
+            max-width: 100%;
+            max-height: 500px;
+            transition: filter 0.3s ease;
+        }
+        .drag-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .drag-area.dragover {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .filter-preset {
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .filter-preset:hover {
+            transform: scale(1.05);
+        }
+        .filter-preset.active {
+            border: 2px solid #0d6efd;
+        }
+        .filter-preset img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .filter-name {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Image Filter</h1>
+                <p class="tool-description">Enhance your images with beautiful filters and effects. Choose from various presets or create custom adjustments.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div id="uploadArea">
+                                <div class="drag-area" id="dropZone">
+                                    <i class="bi bi-image-fill display-4 mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted mb-0">Supports: JPG, PNG, WebP (Max 10MB)</p>
+                                    <input type="file" id="fileInput" accept="image/*" class="d-none">
+                                </div>
+                            </div>
+                            <div id="previewArea" class="d-none">
+                                <div class="img-container">
+                                    <img id="preview" src="" alt="Preview">
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-outline-secondary me-2" id="resetBtn">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                    </button>
+                                    <button class="btn btn-primary" id="downloadBtn" disabled>
+                                        <i class="bi bi-download"></i> Download Image
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Filter Presets -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Filter Presets</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2" id="filterPresets">
+                                <!-- Presets will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Adjustments -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Custom Adjustments</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Brightness</label>
+                                <input type="range" class="form-range" id="brightness" min="0" max="200" value="100">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Contrast</label>
+                                <input type="range" class="form-range" id="contrast" min="0" max="200" value="100">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Saturation</label>
+                                <input type="range" class="form-range" id="saturation" min="0" max="200" value="100">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Hue Rotate</label>
+                                <input type="range" class="form-range" id="hue" min="0" max="360" value="0">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Blur</label>
+                                <input type="range" class="form-range" id="blur" min="0" max="10" value="0">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Sepia</label>
+                                <input type="range" class="form-range" id="sepia" min="0" max="100" value="0">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Grayscale</label>
+                                <input type="range" class="form-range" id="grayscale" min="0" max="100" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Options -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Output Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Format</label>
+                                <select class="form-select" id="outputFormat">
+                                    <option value="jpeg">JPEG</option>
+                                    <option value="png">PNG</option>
+                                    <option value="webp">WebP</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Quality</label>
+                                <input type="range" class="form-range" id="quality" min="0" max="100" value="92">
+                                <div class="text-muted small text-end">
+                                    Quality: <span id="qualityValue">92</span>%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const preview = document.getElementById('preview');
+            const uploadArea = document.getElementById('uploadArea');
+            const previewArea = document.getElementById('previewArea');
+            const resetBtn = document.getElementById('resetBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const filterPresets = document.getElementById('filterPresets');
+            const outputFormat = document.getElementById('outputFormat');
+            const quality = document.getElementById('quality');
+            const qualityValue = document.getElementById('qualityValue');
+
+            // Filter adjustment inputs
+            const brightness = document.getElementById('brightness');
+            const contrast = document.getElementById('contrast');
+            const saturation = document.getElementById('saturation');
+            const hue = document.getElementById('hue');
+            const blur = document.getElementById('blur');
+            const sepia = document.getElementById('sepia');
+            const grayscale = document.getElementById('grayscale');
+
+            let originalImage = null;
+
+            // Filter presets
+            const presets = {
+                'Normal': {},
+                'Vintage': {
+                    brightness: 120,
+                    contrast: 90,
+                    saturation: 85,
+                    sepia: 30
+                },
+                'Warm': {
+                    brightness: 110,
+                    contrast: 110,
+                    saturation: 120,
+                    hue: 15
+                },
+                'Cool': {
+                    brightness: 105,
+                    contrast: 105,
+                    saturation: 110,
+                    hue: 200
+                },
+                'B&W': {
+                    grayscale: 100
+                },
+                'Sepia': {
+                    sepia: 100
+                },
+                'High Contrast': {
+                    contrast: 150,
+                    brightness: 110
+                },
+                'Soft': {
+                    brightness: 105,
+                    contrast: 95,
+                    saturation: 90,
+                    blur: 2
+                }
+            };
+
+            // Create filter presets
+            Object.entries(presets).forEach(([name, values]) => {
+                const col = document.createElement('div');
+                col.className = 'col-6';
+                col.innerHTML = `
+                    <div class="filter-preset" data-filter="${name}">
+                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'></svg>" alt="${name}">
+                        <div class="filter-name">${name}</div>
+                    </div>
+                `;
+                filterPresets.appendChild(col);
+            });
+
+            // Handle drag and drop
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFile(e.target.files[0]);
+            });
+
+            // Handle file selection
+            function handleFile(file) {
+                if (file && file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        originalImage = e.target.result;
+                        preview.src = originalImage;
+                        uploadArea.classList.add('d-none');
+                        previewArea.classList.remove('d-none');
+                        downloadBtn.disabled = false;
+
+                        // Update preset previews
+                        document.querySelectorAll('.filter-preset img').forEach(img => {
+                            img.src = originalImage;
+                            const preset = presets[img.parentElement.dataset.filter];
+                            applyFilterToElement(img, preset);
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Apply filter to element
+            function applyFilterToElement(element, values = {}) {
+                const filters = {
+                    brightness: values.brightness || 100,
+                    contrast: values.contrast || 100,
+                    saturation: values.saturation || 100,
+                    hue: values.hue || 0,
+                    blur: values.blur || 0,
+                    sepia: values.sepia || 0,
+                    grayscale: values.grayscale || 0
+                };
+
+                element.style.filter = `
+                    brightness(${filters.brightness}%)
+                    contrast(${filters.contrast}%)
+                    saturate(${filters.saturation}%)
+                    hue-rotate(${filters.hue}deg)
+                    blur(${filters.blur}px)
+                    sepia(${filters.sepia}%)
+                    grayscale(${filters.grayscale}%)
+                `;
+            }
+
+            // Update filter on input change
+            [brightness, contrast, saturation, hue, blur, sepia, grayscale].forEach(input => {
+                input.addEventListener('input', updateFilter);
+            });
+
+            function updateFilter() {
+                applyFilterToElement(preview, {
+                    brightness: brightness.value,
+                    contrast: contrast.value,
+                    saturation: saturation.value,
+                    hue: hue.value,
+                    blur: blur.value,
+                    sepia: sepia.value,
+                    grayscale: grayscale.value
+                });
+            }
+
+            // Apply preset filters
+            document.querySelectorAll('.filter-preset').forEach(preset => {
+                preset.addEventListener('click', () => {
+                    const values = presets[preset.dataset.filter];
+                    document.querySelectorAll('.filter-preset').forEach(p => p.classList.remove('active'));
+                    preset.classList.add('active');
+
+                    // Update sliders and apply filter
+                    brightness.value = values.brightness || 100;
+                    contrast.value = values.contrast || 100;
+                    saturation.value = values.saturation || 100;
+                    hue.value = values.hue || 0;
+                    blur.value = values.blur || 0;
+                    sepia.value = values.sepia || 0;
+                    grayscale.value = values.grayscale || 0;
+
+                    updateFilter();
+                });
+            });
+
+            // Reset filters
+            resetBtn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-preset').forEach(p => p.classList.remove('active'));
+                brightness.value = 100;
+                contrast.value = 100;
+                saturation.value = 100;
+                hue.value = 0;
+                blur.value = 0;
+                sepia.value = 0;
+                grayscale.value = 0;
+                updateFilter();
+            });
+
+            // Update quality value display
+            quality.addEventListener('input', () => {
+                qualityValue.textContent = quality.value;
+            });
+
+            // Download filtered image
+            downloadBtn.addEventListener('click', () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    // Apply filters to canvas
+                    ctx.filter = preview.style.filter;
+                    ctx.drawImage(img, 0, 0);
+
+                    // Convert to blob and download
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = `filtered-image.${outputFormat.value}`;
+                        link.href = url;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                    }, `image/${outputFormat.value}`, parseInt(quality.value) / 100);
+                };
+
+                img.src = originalImage;
+            });
+        });
+    </script>
+</body>
+</html> 

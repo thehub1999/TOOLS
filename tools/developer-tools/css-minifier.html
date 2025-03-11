@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Minifier - Free Online Tool</title>
+    <meta name="description" content="Free online CSS minifier tool. Compress and optimize your CSS code to reduce file size.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .editor-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        #css-input, #css-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .options-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .stats-card {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .compression-ratio {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">CSS Minifier</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- Options Section -->
+                <div class="options-section mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remove-comments" checked>
+                                <label class="form-check-label" for="remove-comments">
+                                    Remove Comments
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remove-whitespace" checked>
+                                <label class="form-check-label" for="remove-whitespace">
+                                    Remove Whitespace
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="combine-selectors" checked>
+                                <label class="form-check-label" for="combine-selectors">
+                                    Combine Selectors
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="shorten-colors" checked>
+                                <label class="form-check-label" for="shorten-colors">
+                                    Shorten Colors
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="editor-section mb-4">
+                    <label for="css-input" class="form-label">Enter CSS:</label>
+                    <textarea id="css-input" class="form-control mb-3" rows="12" 
+                        placeholder="Paste your CSS code here..."></textarea>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button class="btn btn-primary me-md-2" onclick="minifyCSS()">Minify CSS</button>
+                        <button class="btn btn-secondary" onclick="beautifyCSS()">Beautify CSS</button>
+                        <button class="btn btn-danger" onclick="clearCSS()">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Output Section -->
+                <div class="editor-section">
+                    <label for="css-output" class="form-label">Minified CSS:</label>
+                    <pre><code id="css-output" class="language-css"></code></pre>
+                    
+                    <!-- Statistics -->
+                    <div class="stats-card">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <h6>Original Size</h6>
+                                <p id="original-size">0 bytes</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Minified Size</h6>
+                                <p id="minified-size">0 bytes</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Compression Ratio</h6>
+                                <p class="compression-ratio" id="compression-ratio">0%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                        <button class="btn btn-success" onclick="copyOutput()">Copy Minified CSS</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/components/prism-css.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        const cssInput = document.getElementById('css-input');
+        const cssOutput = document.getElementById('css-output');
+        const originalSize = document.getElementById('original-size');
+        const minifiedSize = document.getElementById('minified-size');
+        const compressionRatio = document.getElementById('compression-ratio');
+        
+        const removeComments = document.getElementById('remove-comments');
+        const removeWhitespace = document.getElementById('remove-whitespace');
+        const combineSelectors = document.getElementById('combine-selectors');
+        const shortenColors = document.getElementById('shorten-colors');
+
+        function minifyCSS() {
+            let css = cssInput.value;
+            
+            if (!css.trim()) {
+                cssOutput.textContent = '';
+                updateStats('', '');
+                return;
+            }
+
+            // Remove comments
+            if (removeComments.checked) {
+                css = css.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+            }
+
+            // Remove whitespace
+            if (removeWhitespace.checked) {
+                css = css.replace(/\s+/g, ' ')
+                    .replace(/\s*{\s*/g, '{')
+                    .replace(/\s*}\s*/g, '}')
+                    .replace(/\s*:\s*/g, ':')
+                    .replace(/\s*;\s*/g, ';')
+                    .replace(/\s*,\s*/g, ',')
+                    .trim();
+            }
+
+            // Combine selectors (basic implementation)
+            if (combineSelectors.checked) {
+                css = css.replace(/}\s*([^{]+?)\s*{/g, '} $1{');
+            }
+
+            // Shorten colors
+            if (shortenColors.checked) {
+                css = css.replace(/#([0-9a-f])\1([0-9a-f])\2([0-9a-f])\3/gi, '#$1$2$3')
+                    .replace(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/g, (match, r, g, b) => {
+                        const hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                        return hex.length === 7 ? hex : match;
+                    });
+            }
+
+            cssOutput.textContent = css;
+            Prism.highlightElement(cssOutput);
+            updateStats(cssInput.value, css);
+        }
+
+        function beautifyCSS() {
+            let css = cssInput.value;
+            
+            if (!css.trim()) {
+                cssOutput.textContent = '';
+                updateStats('', '');
+                return;
+            }
+
+            // Remove existing whitespace
+            css = css.replace(/\s+/g, ' ')
+                .replace(/\s*{\s*/g, ' {\n    ')
+                .replace(/;\s*/g, ';\n    ')
+                .replace(/\s*}\s*/g, '\n}\n\n')
+                .replace(/\n\s*\n/g, '\n')
+                .replace(/,\s*/g, ', ')
+                .trim();
+
+            cssOutput.textContent = css;
+            Prism.highlightElement(cssOutput);
+            updateStats(cssInput.value, css);
+        }
+
+        function updateStats(original, minified) {
+            const originalBytes = new Blob([original]).size;
+            const minifiedBytes = new Blob([minified]).size;
+            
+            originalSize.textContent = formatBytes(originalBytes);
+            minifiedSize.textContent = formatBytes(minifiedBytes);
+            
+            const ratio = originalBytes ? Math.round((1 - minifiedBytes / originalBytes) * 100) : 0;
+            compressionRatio.textContent = ratio + '%';
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 bytes';
+            const k = 1024;
+            const sizes = ['bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function copyOutput() {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = cssOutput.textContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            alert('CSS copied to clipboard!');
+        }
+
+        function clearCSS() {
+            cssInput.value = '';
+            cssOutput.textContent = '';
+            updateStats('', '');
+        }
+
+        // Auto-minify on input paste
+        cssInput.addEventListener('paste', (e) => {
+            setTimeout(minifyCSS, 0);
+        });
+
+        // Auto-minify when options change
+        [removeComments, removeWhitespace, combineSelectors, shortenColors].forEach(option => {
+            option.addEventListener('change', () => {
+                if (cssInput.value) {
+                    minifyCSS();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

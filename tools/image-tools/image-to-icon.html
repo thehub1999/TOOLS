@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Icon - Multi-Tools</title>
+    <meta name="description" content="Convert images to icons. Create icons in various sizes and formats for web and desktop applications.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .drag-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .drag-area.dragover {
+            border-color: #0d6efd;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        .drag-area img {
+            max-width: 100%;
+            max-height: 250px;
+            margin-bottom: 1rem;
+        }
+        .image-info {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .preview-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .icon-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .icon-preview-item {
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .icon-preview-item img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 0.5rem;
+        }
+        .icon-preview-item small {
+            display: block;
+            color: #6c757d;
+        }
+        .progress {
+            height: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Image to Icon</h1>
+                <p class="tool-description">Convert images to icons. Create icons in various sizes and formats for web and desktop applications.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Upload Image</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="uploadArea">
+                                <div class="drag-area" id="dropZone">
+                                    <i class="bi bi-image display-4 mb-3"></i>
+                                    <h5>Drag & Drop or Click to Upload</h5>
+                                    <p class="text-muted mb-0">Supports: JPG, PNG, WebP, GIF (Max 10MB)</p>
+                                    <input type="file" id="fileInput" accept="image/*" class="d-none">
+                                </div>
+                            </div>
+                            <div id="previewArea" class="d-none">
+                                <div class="preview-container">
+                                    <img id="previewImage" src="" alt="Preview">
+                                </div>
+                                <div class="image-info">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">File Name: <span id="fileName">-</span></p>
+                                            <p class="mb-1">File Size: <span id="fileSize">-</span></p>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <p class="mb-1">Dimensions: <span id="dimensions">-</span></p>
+                                            <p class="mb-1">Format: <span id="format">-</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Icon Options</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Icon Sizes</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="16" id="size16" checked>
+                                    <label class="form-check-label" for="size16">16x16</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="32" id="size32" checked>
+                                    <label class="form-check-label" for="size32">32x32</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="48" id="size48" checked>
+                                    <label class="form-check-label" for="size48">48x48</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="64" id="size64" checked>
+                                    <label class="form-check-label" for="size64">64x64</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="128" id="size128" checked>
+                                    <label class="form-check-label" for="size128">128x128</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="256" id="size256" checked>
+                                    <label class="form-check-label" for="size256">256x256</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Output Format</label>
+                                <select class="form-select" id="outputFormat">
+                                    <option value="png">PNG</option>
+                                    <option value="ico">ICO</option>
+                                    <option value="webp">WebP</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Quality</label>
+                                <input type="range" class="form-range" id="quality" min="0" max="1" step="0.1" value="0.8">
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="convertBtn" disabled>
+                                    <i class="bi bi-arrow-repeat"></i> Convert to Icons
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Output</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="outputArea" class="d-none">
+                                <div class="progress mb-3">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div class="icon-preview" id="iconPreview"></div>
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-success" id="downloadBtn">
+                                        <i class="bi bi-download"></i> Download Icons
+                                    </button>
+                                    <button class="btn btn-outline-secondary" id="resetBtn">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Convert Another
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const previewImage = document.getElementById('previewImage');
+            const uploadArea = document.getElementById('uploadArea');
+            const previewArea = document.getElementById('previewArea');
+            const outputArea = document.getElementById('outputArea');
+            const iconPreview = document.getElementById('iconPreview');
+            const convertBtn = document.getElementById('convertBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const outputFormat = document.getElementById('outputFormat');
+            const quality = document.getElementById('quality');
+            const progressBar = document.querySelector('.progress-bar');
+
+            let originalImage = null;
+            let iconBlobs = [];
+
+            // Handle drag and drop
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFile(e.target.files[0]);
+            });
+
+            // Handle file selection
+            function handleFile(file) {
+                if (file && file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        originalImage = new Image();
+                        originalImage.onload = () => {
+                            previewImage.src = e.target.result;
+                            uploadArea.classList.add('d-none');
+                            previewArea.classList.remove('d-none');
+                            outputArea.classList.add('d-none');
+                            updateImageInfo(file);
+                            convertBtn.disabled = false;
+                        };
+                        originalImage.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Update image information
+            function updateImageInfo(file) {
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatBytes(file.size);
+                document.getElementById('format').textContent = file.type.split('/')[1].toUpperCase();
+                document.getElementById('dimensions').textContent = `${originalImage.width} × ${originalImage.height}px`;
+            }
+
+            // Convert button click handler
+            convertBtn.addEventListener('click', async () => {
+                convertBtn.disabled = true;
+                progressBar.style.width = '0%';
+                iconPreview.innerHTML = 'Processing...';
+                outputArea.classList.remove('d-none');
+
+                try {
+                    iconBlobs = [];
+                    const sizes = [16, 32, 48, 64, 128, 256].filter(size => 
+                        document.getElementById(`size${size}`).checked
+                    );
+
+                    for (let i = 0; i < sizes.length; i++) {
+                        const size = sizes[i];
+                        const canvas = document.createElement('canvas');
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(originalImage, 0, 0, size, size);
+
+                        const blob = await new Promise(resolve => {
+                            canvas.toBlob(resolve, `image/${outputFormat.value}`, quality.value);
+                        });
+
+                        iconBlobs.push({ size, blob });
+                        progressBar.style.width = `${((i + 1) / sizes.length) * 100}%`;
+                    }
+
+                    // Display previews
+                    iconPreview.innerHTML = iconBlobs.map(({ size, blob }) => `
+                        <div class="icon-preview-item">
+                            <img src="${URL.createObjectURL(blob)}" alt="${size}x${size}">
+                            <small>${size}x${size}</small>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    iconPreview.innerHTML = `Error: ${error.message}`;
+                } finally {
+                    convertBtn.disabled = false;
+                }
+            });
+
+            // Download button click handler
+            downloadBtn.addEventListener('click', () => {
+                if (outputFormat.value === 'ico') {
+                    // For ICO format, download all sizes in one file
+                    const zip = new JSZip();
+                    iconBlobs.forEach(({ size, blob }) => {
+                        zip.file(`icon_${size}x${size}.${outputFormat.value}`, blob);
+                    });
+                    zip.generateAsync({ type: 'blob' }).then(content => {
+                        const url = URL.createObjectURL(content);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'icons.zip';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    });
+                } else {
+                    // For other formats, download each size separately
+                    iconBlobs.forEach(({ size, blob }) => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `icon_${size}x${size}.${outputFormat.value}`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    });
+                }
+            });
+
+            // Reset button click handler
+            resetBtn.addEventListener('click', () => {
+                previewImage.src = '';
+                fileInput.value = '';
+                uploadArea.classList.remove('d-none');
+                previewArea.classList.add('d-none');
+                outputArea.classList.add('d-none');
+                convertBtn.disabled = true;
+
+                document.getElementById('fileName').textContent = '-';
+                document.getElementById('fileSize').textContent = '-';
+                document.getElementById('dimensions').textContent = '-';
+                document.getElementById('format').textContent = '-';
+            });
+
+            // Helper function
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html> 

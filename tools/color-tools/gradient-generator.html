@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gradient Generator - Free Online Tool</title>
+    <meta name="description" content="Free online gradient generator to create beautiful color gradients for web design and UI.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .gradient-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .gradient-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border: 1px solid #dee2e6;
+            background: linear-gradient(90deg, #000000 0%, #ffffff 100%);
+        }
+        .color-stops {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            position: relative;
+            height: 40px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+        .color-stop {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 0 1px #dee2e6;
+            transform: translateX(-50%);
+        }
+        .color-stop.active {
+            z-index: 1;
+            transform: translateX(-50%) scale(1.2);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .control-box {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+        .control-box h5 {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .gradient-type-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        .angle-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .angle-input {
+            width: 80px;
+        }
+        .export-box {
+            display: grid;
+            gap: 1rem;
+        }
+        .export-code {
+            font-family: monospace;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">Gradient Generator</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="gradient-container">
+            <!-- Gradient Preview -->
+            <div class="gradient-preview" id="gradientPreview"></div>
+
+            <!-- Color Stops -->
+            <div class="color-stops" id="colorStops"></div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <!-- Color Control -->
+                <div class="control-box">
+                    <h5>
+                        Selected Color
+                        <button class="btn btn-sm btn-outline-danger" onclick="removeStop()">
+                            <i class="bi bi-trash"></i> Remove
+                        </button>
+                    </h5>
+                    <div class="mb-3">
+                        <label class="form-label">Color</label>
+                        <input type="color" class="form-control form-control-color w-100" 
+                               id="colorInput" value="#000000" onchange="updateSelectedStop()">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Position (%)</label>
+                        <input type="number" class="form-control" id="positionInput" 
+                               min="0" max="100" value="0" onchange="updateSelectedStop()">
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="addStop()">
+                        <i class="bi bi-plus-lg"></i> Add Color Stop
+                    </button>
+                </div>
+
+                <!-- Gradient Type -->
+                <div class="control-box">
+                    <h5>Gradient Type</h5>
+                    <div class="gradient-type-buttons mb-3">
+                        <button class="btn btn-outline-primary active" onclick="setGradientType('linear')">
+                            Linear
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="setGradientType('radial')">
+                            Radial
+                        </button>
+                    </div>
+                    <div class="angle-control">
+                        <label class="form-label mb-0">Angle</label>
+                        <input type="number" class="form-control angle-input" id="angleInput" 
+                               value="90" min="0" max="360" onchange="updateGradient()">
+                        <span>degrees</span>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="control-box">
+                    <h5>Export</h5>
+                    <div class="export-box">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label>CSS</label>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="copyCode('css')">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                            </div>
+                            <div class="export-code" id="cssCode"></div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label>SCSS</label>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="copyCode('scss')">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                            </div>
+                            <div class="export-code" id="scssCode"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // State
+        let gradientType = 'linear';
+        let angle = 90;
+        let colorStops = [
+            { color: '#000000', position: 0 },
+            { color: '#ffffff', position: 100 }
+        ];
+        let selectedStop = 0;
+
+        // DOM Elements
+        const gradientPreview = document.getElementById('gradientPreview');
+        const colorStopsContainer = document.getElementById('colorStops');
+        const colorInput = document.getElementById('colorInput');
+        const positionInput = document.getElementById('positionInput');
+        const angleInput = document.getElementById('angleInput');
+        const cssCode = document.getElementById('cssCode');
+        const scssCode = document.getElementById('scssCode');
+
+        // Initialize
+        renderColorStops();
+        updateGradient();
+
+        function renderColorStops() {
+            colorStopsContainer.innerHTML = '';
+            colorStops.forEach((stop, index) => {
+                const stopElement = document.createElement('div');
+                stopElement.className = `color-stop${index === selectedStop ? ' active' : ''}`;
+                stopElement.style.left = `${stop.position}%`;
+                stopElement.style.backgroundColor = stop.color;
+                stopElement.onclick = () => selectStop(index);
+                colorStopsContainer.appendChild(stopElement);
+            });
+
+            // Update background gradient for color stops container
+            colorStopsContainer.style.background = generateGradient('linear', 90);
+        }
+
+        function selectStop(index) {
+            selectedStop = index;
+            const stop = colorStops[index];
+            colorInput.value = stop.color;
+            positionInput.value = stop.position;
+            renderColorStops();
+        }
+
+        function updateSelectedStop() {
+            const color = colorInput.value;
+            const position = Math.min(100, Math.max(0, parseInt(positionInput.value) || 0));
+            
+            colorStops[selectedStop] = { color, position };
+            colorStops.sort((a, b) => a.position - b.position);
+            selectedStop = colorStops.findIndex(stop => stop.color === color && stop.position === position);
+            
+            renderColorStops();
+            updateGradient();
+        }
+
+        function addStop() {
+            const newPosition = 50;
+            const newColor = '#808080';
+            colorStops.push({ color: newColor, position: newPosition });
+            colorStops.sort((a, b) => a.position - b.position);
+            selectedStop = colorStops.findIndex(stop => stop.color === newColor && stop.position === newPosition);
+            
+            renderColorStops();
+            updateGradient();
+            selectStop(selectedStop);
+        }
+
+        function removeStop() {
+            if (colorStops.length <= 2) {
+                showToast('Minimum two color stops required');
+                return;
+            }
+
+            colorStops.splice(selectedStop, 1);
+            selectedStop = Math.min(selectedStop, colorStops.length - 1);
+            
+            renderColorStops();
+            updateGradient();
+            selectStop(selectedStop);
+        }
+
+        function setGradientType(type) {
+            gradientType = type;
+            document.querySelectorAll('.gradient-type-buttons .btn').forEach(btn => {
+                btn.classList.toggle('active', 
+                    btn.textContent.trim().toLowerCase() === type);
+            });
+            
+            // Show/hide angle control based on type
+            document.querySelector('.angle-control').style.display = 
+                type === 'linear' ? 'flex' : 'none';
+            
+            updateGradient();
+        }
+
+        function generateGradient(type, angle) {
+            const stops = colorStops
+                .map(stop => `${stop.color} ${stop.position}%`)
+                .join(', ');
+
+            if (type === 'linear') {
+                return `linear-gradient(${angle}deg, ${stops})`;
+            } else {
+                return `radial-gradient(circle, ${stops})`;
+            }
+        }
+
+        function updateGradient() {
+            angle = parseInt(angleInput.value) || 90;
+            const gradient = generateGradient(gradientType, angle);
+            gradientPreview.style.background = gradient;
+
+            // Update code exports
+            const cssGradient = `background: ${gradient};`;
+            const scssGradient = `$gradient: ${gradient};\n\n.element {\n    background: $gradient;\n}`;
+
+            cssCode.textContent = cssGradient;
+            scssCode.textContent = scssGradient;
+        }
+
+        function copyCode(type) {
+            const code = type === 'css' ? cssCode.textContent : scssCode.textContent;
+            navigator.clipboard.writeText(code)
+                .then(() => showToast(`${type.toUpperCase()} code copied!`))
+                .catch(err => console.error('Failed to copy:', err));
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast position-fixed bottom-0 end-0 m-3';
+            toast.innerHTML = `
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+    </script>
+</body>
+</html> 

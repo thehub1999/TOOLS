@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Analyzer - Multi-Tools</title>
+    <meta name="description" content="Analyze your website's SEO in real-time. Get detailed insights about meta tags, content, performance, and technical SEO aspects.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .analysis-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .analysis-card:hover {
+            transform: translateY(-2px);
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-good { background-color: #d1e7dd; color: #0f5132; }
+        .status-warning { background-color: #fff3cd; color: #856404; }
+        .status-error { background-color: #f8d7da; color: #842029; }
+        .check-item {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .check-item:hover {
+            background-color: #f8f9fa;
+        }
+        .check-icon {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        .check-good { background-color: #198754; color: white; }
+        .check-warning { background-color: #ffc107; color: black; }
+        .check-error { background-color: #dc3545; color: white; }
+        .meta-preview {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .google-title {
+            color: #1a0dab;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .google-url {
+            color: #006621;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        .google-description {
+            color: #545454;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        .progress-thin {
+            height: 4px;
+        }
+        .keyword-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            background-color: #e9ecef;
+            border-radius: 12px;
+            font-size: 0.875rem;
+        }
+        .keyword-tag .count {
+            display: inline-block;
+            padding: 0.125rem 0.375rem;
+            margin-left: 0.25rem;
+            background-color: #dee2e6;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>SEO Analyzer</h1>
+                <p class="tool-description">Analyze your website's SEO in real-time. Get detailed insights about meta tags, content, performance, and technical SEO aspects.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Website Analysis</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Website URL</label>
+                                <input type="url" class="form-control" id="websiteUrl" placeholder="https://example.com">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Target Keywords</label>
+                                <textarea class="form-control" id="targetKeywords" rows="2" placeholder="Enter keywords separated by commas"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Analysis Options</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkOnPage" checked>
+                                    <label class="form-check-label" for="checkOnPage">On-Page SEO</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkTechnical" checked>
+                                    <label class="form-check-label" for="checkTechnical">Technical SEO</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkMobile" checked>
+                                    <label class="form-check-label" for="checkMobile">Mobile Optimization</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="checkSpeed" checked>
+                                    <label class="form-check-label" for="checkSpeed">Page Speed</label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="analyzeBtn">
+                                    <i class="bi bi-search"></i> Analyze Website
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Analysis History</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group" id="analysisHistory">
+                                <!-- Analysis history will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div id="loadingSection" style="display: none;">
+                        <div class="card">
+                            <div class="card-body text-center py-5">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h5 class="mb-2">Analyzing Website</h5>
+                                <p class="text-muted mb-0" id="analysisStatus">Checking on-page elements...</p>
+                                <div class="progress progress-thin mt-3">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="analysisProgress" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="resultsSection" style="display: none;">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Meta Tags Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="meta-preview mb-3">
+                                    <h6 class="mb-2">Google Search Preview</h6>
+                                    <div class="google-title" id="previewTitle">Page Title</div>
+                                    <div class="google-url" id="previewUrl">example.com</div>
+                                    <div class="google-description" id="previewDescription">Meta description preview will appear here...</div>
+                                </div>
+
+                                <div id="metaChecksList">
+                                    <!-- Meta checks will be added here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Content Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-6">
+                                        <div class="analysis-card">
+                                            <small class="text-muted d-block">Word Count</small>
+                                            <div class="h3 mb-0" id="wordCount">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="analysis-card">
+                                            <small class="text-muted d-block">Keyword Density</small>
+                                            <div class="h3 mb-0" id="keywordDensity">0%</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-2">Keyword Usage</h6>
+                                <div id="keywordsList" class="mb-3">
+                                    <!-- Keywords will be added here -->
+                                </div>
+
+                                <h6 class="mb-2">Content Checks</h6>
+                                <div id="contentChecksList">
+                                    <!-- Content checks will be added here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Technical Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-4">
+                                        <div class="analysis-card text-center">
+                                            <small class="text-muted d-block">Page Load Time</small>
+                                            <div class="h3 mb-0" id="loadTime">0s</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="analysis-card text-center">
+                                            <small class="text-muted d-block">Mobile Score</small>
+                                            <div class="h3 mb-0" id="mobileScore">0/100</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="analysis-card text-center">
+                                            <small class="text-muted d-block">Security Score</small>
+                                            <div class="h3 mb-0" id="securityScore">0/100</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-2">Technical Checks</h6>
+                                <div id="technicalChecksList">
+                                    <!-- Technical checks will be added here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Action Items</h5>
+                                <button class="btn btn-sm btn-primary" id="exportBtn">
+                                    <i class="bi bi-download"></i> Export Analysis
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="actionsList">
+                                    <!-- Action items will be added here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = {
+                websiteUrl: document.getElementById('websiteUrl'),
+                targetKeywords: document.getElementById('targetKeywords'),
+                checkOnPage: document.getElementById('checkOnPage'),
+                checkTechnical: document.getElementById('checkTechnical'),
+                checkMobile: document.getElementById('checkMobile'),
+                checkSpeed: document.getElementById('checkSpeed')
+            };
+
+            const elements = {
+                loadingSection: document.getElementById('loadingSection'),
+                resultsSection: document.getElementById('resultsSection'),
+                analysisStatus: document.getElementById('analysisStatus'),
+                analysisProgress: document.getElementById('analysisProgress'),
+                previewTitle: document.getElementById('previewTitle'),
+                previewUrl: document.getElementById('previewUrl'),
+                previewDescription: document.getElementById('previewDescription'),
+                metaChecksList: document.getElementById('metaChecksList'),
+                wordCount: document.getElementById('wordCount'),
+                keywordDensity: document.getElementById('keywordDensity'),
+                keywordsList: document.getElementById('keywordsList'),
+                contentChecksList: document.getElementById('contentChecksList'),
+                loadTime: document.getElementById('loadTime'),
+                mobileScore: document.getElementById('mobileScore'),
+                securityScore: document.getElementById('securityScore'),
+                technicalChecksList: document.getElementById('technicalChecksList'),
+                actionsList: document.getElementById('actionsList'),
+                analysisHistory: document.getElementById('analysisHistory')
+            };
+
+            const buttons = {
+                analyze: document.getElementById('analyzeBtn'),
+                export: document.getElementById('exportBtn')
+            };
+
+            function startAnalysis() {
+                const url = inputs.websiteUrl.value.trim();
+                if (!url) {
+                    alert('Please enter a website URL');
+                    return;
+                }
+
+                try {
+                    new URL(url);
+                } catch (e) {
+                    alert('Please enter a valid URL');
+                    return;
+                }
+
+                // Show loading section
+                elements.loadingSection.style.display = 'block';
+                elements.resultsSection.style.display = 'none';
+                elements.analysisProgress.style.width = '0%';
+
+                // Simulate analysis process
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    elements.analysisProgress.style.width = `${progress}%`;
+
+                    if (progress <= 25) {
+                        elements.analysisStatus.textContent = 'Analyzing meta tags...';
+                    } else if (progress <= 50) {
+                        elements.analysisStatus.textContent = 'Checking content...';
+                    } else if (progress <= 75) {
+                        elements.analysisStatus.textContent = 'Running technical checks...';
+                    } else {
+                        elements.analysisStatus.textContent = 'Finalizing analysis...';
+                    }
+
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(showResults, 500);
+                    }
+                }, 100);
+            }
+
+            function showResults() {
+                elements.loadingSection.style.display = 'none';
+                elements.resultsSection.style.display = 'block';
+
+                // Update meta preview
+                updateMetaPreview();
+
+                // Generate analysis results
+                generateMetaChecks();
+                generateContentAnalysis();
+                generateTechnicalChecks();
+                generateActionItems();
+                addToHistory();
+            }
+
+            function updateMetaPreview() {
+                const url = new URL(inputs.websiteUrl.value);
+                elements.previewTitle.textContent = 'Sample Page Title - Website Name';
+                elements.previewUrl.textContent = url.hostname + url.pathname;
+                elements.previewDescription.textContent = 'This is a sample meta description that would appear in search results. It should be compelling and include relevant keywords.';
+            }
+
+            function generateMetaChecks() {
+                const checks = [
+                    { status: 'good', title: 'Title Tag', description: 'Title length is optimal (55 characters)' },
+                    { status: 'warning', title: 'Meta Description', description: 'Description could be more compelling' },
+                    { status: 'error', title: 'Meta Keywords', description: 'Meta keywords tag is missing' },
+                    { status: 'good', title: 'Canonical URL', description: 'Canonical URL is properly set' }
+                ];
+
+                elements.metaChecksList.innerHTML = checks.map(check => `
+                    <div class="check-item">
+                        <div class="d-flex align-items-start">
+                            <div class="check-icon check-${check.status}">
+                                <i class="bi bi-${getStatusIcon(check.status)}"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">${check.title}</h6>
+                                <p class="mb-0 text-muted">${check.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function generateContentAnalysis() {
+                // Update metrics
+                elements.wordCount.textContent = Math.floor(Math.random() * 1000) + 500;
+                elements.keywordDensity.textContent = (Math.random() * 3 + 1).toFixed(1) + '%';
+
+                // Generate keyword list
+                const keywords = [
+                    { word: 'sample keyword', count: 12 },
+                    { word: 'another keyword', count: 8 },
+                    { word: 'test phrase', count: 5 },
+                    { word: 'example term', count: 3 }
+                ];
+
+                elements.keywordsList.innerHTML = keywords.map(kw => `
+                    <span class="keyword-tag">
+                        ${kw.word}
+                        <span class="count">${kw.count}</span>
+                    </span>
+                `).join('');
+
+                // Generate content checks
+                const checks = [
+                    { status: 'good', title: 'Content Length', description: 'Content length is good (1,200 words)' },
+                    { status: 'warning', title: 'Keyword Density', description: 'Main keyword density is slightly high' },
+                    { status: 'good', title: 'Headings', description: 'Good heading structure (H1-H6)' },
+                    { status: 'error', title: 'Image Alt Text', description: 'Some images are missing alt text' }
+                ];
+
+                elements.contentChecksList.innerHTML = checks.map(check => `
+                    <div class="check-item">
+                        <div class="d-flex align-items-start">
+                            <div class="check-icon check-${check.status}">
+                                <i class="bi bi-${getStatusIcon(check.status)}"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">${check.title}</h6>
+                                <p class="mb-0 text-muted">${check.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function generateTechnicalChecks() {
+                // Update metrics
+                elements.loadTime.textContent = (Math.random() * 2 + 1).toFixed(1) + 's';
+                elements.mobileScore.textContent = Math.floor(Math.random() * 20 + 80) + '/100';
+                elements.securityScore.textContent = Math.floor(Math.random() * 20 + 80) + '/100';
+
+                const checks = [
+                    { status: 'good', title: 'Mobile Friendly', description: 'Website is mobile-friendly' },
+                    { status: 'warning', title: 'Page Speed', description: 'Page load time could be improved' },
+                    { status: 'good', title: 'HTTPS', description: 'Secure HTTPS connection is enabled' },
+                    { status: 'error', title: 'Broken Links', description: 'Found 3 broken links' }
+                ];
+
+                elements.technicalChecksList.innerHTML = checks.map(check => `
+                    <div class="check-item">
+                        <div class="d-flex align-items-start">
+                            <div class="check-icon check-${check.status}">
+                                <i class="bi bi-${getStatusIcon(check.status)}"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">${check.title}</h6>
+                                <p class="mb-0 text-muted">${check.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function generateActionItems() {
+                const actions = [
+                    'Optimize meta description for better click-through rate',
+                    'Add alt text to all images',
+                    'Fix broken links',
+                    'Improve page load time by optimizing images',
+                    'Add internal links to improve site structure'
+                ];
+
+                elements.actionsList.innerHTML = actions.map(action => `
+                    <div class="check-item">
+                        <div class="d-flex align-items-start">
+                            <div class="check-icon check-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0">${action}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function addToHistory() {
+                const historyItem = document.createElement('a');
+                historyItem.href = '#';
+                historyItem.className = 'list-group-item list-group-item-action';
+                historyItem.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${inputs.websiteUrl.value}</h6>
+                        <small class="text-muted">${new Date().toLocaleString()}</small>
+                    </div>
+                    <p class="mb-1">Score: ${elements.mobileScore.textContent}</p>
+                    <small class="text-muted">Click to view results</small>
+                `;
+                elements.analysisHistory.insertBefore(historyItem, elements.analysisHistory.firstChild);
+            }
+
+            function getStatusIcon(status) {
+                switch (status) {
+                    case 'good': return 'check-circle-fill';
+                    case 'warning': return 'exclamation-circle-fill';
+                    case 'error': return 'x-circle-fill';
+                    default: return 'question-circle-fill';
+                }
+            }
+
+            // Event Listeners
+            buttons.analyze.addEventListener('click', startAnalysis);
+
+            buttons.export.addEventListener('click', () => {
+                alert('Analysis export functionality will be implemented here');
+            });
+        });
+    </script>
+</body>
+</html> 

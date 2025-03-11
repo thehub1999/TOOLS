@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Minifier - Free Online Tool</title>
+    <meta name="description" content="Free online HTML minifier tool. Compress and optimize your HTML code to reduce file size.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .editor-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        #html-input, #html-output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .options-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .stats-card {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .compression-ratio {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <h1 class="text-center mb-4">HTML Minifier</h1>
+        
+        <!-- Ad Space -->
+        <div class="ad-space text-center mb-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- Options Section -->
+                <div class="options-section mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remove-comments" checked>
+                                <label class="form-check-label" for="remove-comments">
+                                    Remove Comments
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remove-whitespace" checked>
+                                <label class="form-check-label" for="remove-whitespace">
+                                    Remove Whitespace
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remove-empty-attributes" checked>
+                                <label class="form-check-label" for="remove-empty-attributes">
+                                    Remove Empty Attributes
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remove-quotes" checked>
+                                <label class="form-check-label" for="remove-quotes">
+                                    Remove Unnecessary Quotes
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="editor-section mb-4">
+                    <label for="html-input" class="form-label">Enter HTML:</label>
+                    <textarea id="html-input" class="form-control mb-3" rows="12" 
+                        placeholder="Paste your HTML code here..."></textarea>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button class="btn btn-primary me-md-2" onclick="minifyHTML()">Minify HTML</button>
+                        <button class="btn btn-secondary" onclick="beautifyHTML()">Beautify HTML</button>
+                        <button class="btn btn-danger" onclick="clearHTML()">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Output Section -->
+                <div class="editor-section">
+                    <label for="html-output" class="form-label">Minified HTML:</label>
+                    <pre><code id="html-output" class="language-html"></code></pre>
+                    
+                    <!-- Statistics -->
+                    <div class="stats-card">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <h6>Original Size</h6>
+                                <p id="original-size">0 bytes</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Minified Size</h6>
+                                <p id="minified-size">0 bytes</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Compression Ratio</h6>
+                                <p class="compression-ratio" id="compression-ratio">0%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                        <button class="btn btn-success" onclick="copyOutput()">Copy Minified HTML</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Space -->
+        <div class="ad-space text-center mt-4">
+            <div class="bg-light p-3">
+                <!-- Ad code will go here -->
+                <p class="text-muted m-0">Advertisement</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prismjs/1.29.0/components/prism-markup.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        const htmlInput = document.getElementById('html-input');
+        const htmlOutput = document.getElementById('html-output');
+        const originalSize = document.getElementById('original-size');
+        const minifiedSize = document.getElementById('minified-size');
+        const compressionRatio = document.getElementById('compression-ratio');
+        
+        const removeComments = document.getElementById('remove-comments');
+        const removeWhitespace = document.getElementById('remove-whitespace');
+        const removeEmptyAttributes = document.getElementById('remove-empty-attributes');
+        const removeQuotes = document.getElementById('remove-quotes');
+
+        function minifyHTML() {
+            let html = htmlInput.value;
+            
+            if (!html.trim()) {
+                htmlOutput.textContent = '';
+                updateStats('', '');
+                return;
+            }
+
+            // Remove comments
+            if (removeComments.checked) {
+                html = html.replace(/<!--[\s\S]*?-->/g, '');
+            }
+
+            // Remove whitespace
+            if (removeWhitespace.checked) {
+                html = html.replace(/\s+/g, ' ')
+                    .replace(/>\s+</g, '><')
+                    .replace(/\s+>/g, '>')
+                    .replace(/>\s+/g, '>')
+                    .trim();
+            }
+
+            // Remove empty attributes
+            if (removeEmptyAttributes.checked) {
+                html = html.replace(/\s+(?:class|style|id)=["']\s*["']/g, '');
+            }
+
+            // Remove unnecessary quotes
+            if (removeQuotes.checked) {
+                html = html.replace(/="([^">\s]+)"/g, '=$1');
+            }
+
+            htmlOutput.textContent = html;
+            Prism.highlightElement(htmlOutput);
+            updateStats(htmlInput.value, html);
+        }
+
+        function beautifyHTML() {
+            let html = htmlInput.value;
+            
+            if (!html.trim()) {
+                htmlOutput.textContent = '';
+                updateStats('', '');
+                return;
+            }
+
+            // Basic HTML beautification
+            html = html
+                .replace(/></g, '>\n<')
+                .replace(/\s+/g, ' ')
+                .replace(/>\s*([^<]*)\s*</g, '>\n$1\n<')
+                .split('\n')
+                .filter(line => line.trim())
+                .map((line, index, array) => {
+                    let indent = 0;
+                    for (let i = 0; i < index; i++) {
+                        if (array[i].includes('<') && !array[i].includes('</') && !array[i].includes('/>')) {
+                            indent++;
+                        }
+                        if (array[i].includes('</')) {
+                            indent--;
+                        }
+                    }
+                    return '    '.repeat(Math.max(0, indent)) + line.trim();
+                })
+                .join('\n');
+
+            htmlOutput.textContent = html;
+            Prism.highlightElement(htmlOutput);
+            updateStats(htmlInput.value, html);
+        }
+
+        function updateStats(original, minified) {
+            const originalBytes = new Blob([original]).size;
+            const minifiedBytes = new Blob([minified]).size;
+            
+            originalSize.textContent = formatBytes(originalBytes);
+            minifiedSize.textContent = formatBytes(minifiedBytes);
+            
+            const ratio = originalBytes ? Math.round((1 - minifiedBytes / originalBytes) * 100) : 0;
+            compressionRatio.textContent = ratio + '%';
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 bytes';
+            const k = 1024;
+            const sizes = ['bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function copyOutput() {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = htmlOutput.textContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            alert('HTML copied to clipboard!');
+        }
+
+        function clearHTML() {
+            htmlInput.value = '';
+            htmlOutput.textContent = '';
+            updateStats('', '');
+        }
+
+        // Auto-minify on input paste
+        htmlInput.addEventListener('paste', (e) => {
+            setTimeout(minifyHTML, 0);
+        });
+
+        // Auto-minify when options change
+        [removeComments, removeWhitespace, removeEmptyAttributes, removeQuotes].forEach(option => {
+            option.addEventListener('change', () => {
+                if (htmlInput.value) {
+                    minifyHTML();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

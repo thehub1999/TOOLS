@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robots.txt Generator - Multi-Tools</title>
+    <meta name="description" content="Create and manage robots.txt files. Control search engine crawling with user-friendly rule management.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .rule-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        .rule-card:hover {
+            background-color: #e9ecef;
+        }
+        .rule-card .remove-rule {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            cursor: pointer;
+            color: #dc3545;
+        }
+        .preview-box {
+            font-family: monospace;
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .template-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .template-section:hover {
+            background-color: #e9ecef;
+        }
+        .template-btn {
+            margin: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .rule-type {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        .rule-allow {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .rule-disallow {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .rule-sitemap {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        .rule-crawl-delay {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .help-tooltip {
+            cursor: help;
+            color: #6c757d;
+        }
+        .validation-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Robots.txt Generator</h1>
+                <p class="tool-description">Create and manage robots.txt files. Control search engine crawling with user-friendly rule management.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Add Rules</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="template-section">
+                                <h6 class="mb-3">Quick Templates</h6>
+                                <div class="d-flex flex-wrap">
+                                    <button class="btn btn-outline-secondary template-btn" data-template="wordpress">
+                                        WordPress
+                                    </button>
+                                    <button class="btn btn-outline-secondary template-btn" data-template="ecommerce">
+                                        E-commerce
+                                    </button>
+                                    <button class="btn btn-outline-secondary template-btn" data-template="blog">
+                                        Blog
+                                    </button>
+                                    <button class="btn btn-outline-secondary template-btn" data-template="basic">
+                                        Basic
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="template-section">
+                                <div class="mb-3">
+                                    <label class="form-label">User-agent</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="userAgentInput" placeholder="*">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Common
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#" data-agent="*">All robots (*)</a></li>
+                                            <li><a class="dropdown-item" href="#" data-agent="Googlebot">Googlebot</a></li>
+                                            <li><a class="dropdown-item" href="#" data-agent="Bingbot">Bingbot</a></li>
+                                            <li><a class="dropdown-item" href="#" data-agent="Yandex">Yandex</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Rule Type</label>
+                                    <select class="form-select" id="ruleTypeInput">
+                                        <option value="allow">Allow</option>
+                                        <option value="disallow">Disallow</option>
+                                        <option value="sitemap">Sitemap</option>
+                                        <option value="crawl-delay">Crawl-delay</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Path/Value</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="pathInput" placeholder="/example-path/">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Common
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#" data-path="/wp-admin/">WordPress Admin</a></li>
+                                            <li><a class="dropdown-item" href="#" data-path="/wp-includes/">WordPress Includes</a></li>
+                                            <li><a class="dropdown-item" href="#" data-path="/search">Search Pages</a></li>
+                                            <li><a class="dropdown-item" href="#" data-path="/cart">Cart Pages</a></li>
+                                        </ul>
+                                    </div>
+                                    <small class="text-muted">For Crawl-delay, enter the delay in seconds</small>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button class="btn btn-primary" id="addRuleBtn">
+                                        <i class="bi bi-plus-circle"></i> Add Rule
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="template-section">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="addComments" checked>
+                                    <label class="form-check-label" for="addComments">
+                                        Add Comments
+                                        <i class="bi bi-question-circle help-tooltip" title="Add helpful comments to explain rules"></i>
+                                    </label>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="validatePaths" checked>
+                                    <label class="form-check-label" for="validatePaths">
+                                        Validate Paths
+                                        <i class="bi bi-question-circle help-tooltip" title="Check if paths are properly formatted"></i>
+                                    </label>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="groupRules" checked>
+                                    <label class="form-check-label" for="groupRules">
+                                        Group Rules by User-agent
+                                        <i class="bi bi-question-circle help-tooltip" title="Organize rules by user-agent for better readability"></i>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Rules List</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="rulesList">
+                                <!-- Rules will be added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Generated robots.txt</h5>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-primary" id="copyBtn">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                                <button class="btn btn-sm btn-success" id="downloadBtn">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-box" id="robotsTxtOutput">
+                                <!-- Generated robots.txt content will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = {
+                userAgentInput: document.getElementById('userAgentInput'),
+                ruleTypeInput: document.getElementById('ruleTypeInput'),
+                pathInput: document.getElementById('pathInput'),
+                addComments: document.getElementById('addComments'),
+                validatePaths: document.getElementById('validatePaths'),
+                groupRules: document.getElementById('groupRules'),
+                rulesList: document.getElementById('rulesList'),
+                robotsTxtOutput: document.getElementById('robotsTxtOutput')
+            };
+
+            const buttons = {
+                addRule: document.getElementById('addRuleBtn'),
+                copy: document.getElementById('copyBtn'),
+                download: document.getElementById('downloadBtn')
+            };
+
+            let rules = [];
+
+            // Template rules
+            const templates = {
+                wordpress: [
+                    { userAgent: '*', type: 'disallow', path: '/wp-admin/' },
+                    { userAgent: '*', type: 'disallow', path: '/wp-includes/' },
+                    { userAgent: '*', type: 'disallow', path: '/wp-content/plugins/' },
+                    { userAgent: '*', type: 'disallow', path: '/wp-content/themes/' },
+                    { userAgent: '*', type: 'allow', path: '/wp-admin/admin-ajax.php' }
+                ],
+                ecommerce: [
+                    { userAgent: '*', type: 'disallow', path: '/cart/' },
+                    { userAgent: '*', type: 'disallow', path: '/checkout/' },
+                    { userAgent: '*', type: 'disallow', path: '/my-account/' },
+                    { userAgent: '*', type: 'disallow', path: '/search/' },
+                    { userAgent: '*', type: 'disallow', path: '*?s=' },
+                    { userAgent: '*', type: 'disallow', path: '*?p=' }
+                ],
+                blog: [
+                    { userAgent: '*', type: 'disallow', path: '/wp-admin/' },
+                    { userAgent: '*', type: 'disallow', path: '/feed/' },
+                    { userAgent: '*', type: 'disallow', path: '/trackback/' },
+                    { userAgent: '*', type: 'disallow', path: '/comments/' }
+                ],
+                basic: [
+                    { userAgent: '*', type: 'disallow', path: '/private/' },
+                    { userAgent: '*', type: 'disallow', path: '/admin/' },
+                    { userAgent: '*', type: 'disallow', path: '/temp/' }
+                ]
+            };
+
+            function addRule() {
+                const userAgent = elements.userAgentInput.value.trim();
+                const type = elements.ruleTypeInput.value;
+                const path = elements.pathInput.value.trim();
+
+                if (!userAgent || !path) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                if (elements.validatePaths.checked && type !== 'sitemap' && type !== 'crawl-delay') {
+                    if (!path.startsWith('/') && !path.startsWith('*')) {
+                        alert('Path should start with / or *');
+                        return;
+                    }
+                }
+
+                rules.push({ userAgent, type, path });
+                updateRulesList();
+                updateRobotsTxt();
+                clearInputs();
+            }
+
+            function updateRulesList() {
+                elements.rulesList.innerHTML = rules.map((rule, index) => `
+                    <div class="rule-card">
+                        <span class="remove-rule" onclick="removeRule(${index})">
+                            <i class="bi bi-x-circle"></i>
+                        </span>
+                        <div class="mb-2">
+                            <strong>User-agent:</strong> ${rule.userAgent}
+                            <span class="rule-type rule-${rule.type}">
+                                ${rule.type.charAt(0).toUpperCase() + rule.type.slice(1)}
+                            </span>
+                        </div>
+                        <div class="text-muted">
+                            <small>Path/Value: ${rule.path}</small>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function updateRobotsTxt() {
+                let output = '';
+                
+                if (elements.groupRules.checked) {
+                    // Group rules by user-agent
+                    const groupedRules = {};
+                    rules.forEach(rule => {
+                        if (!groupedRules[rule.userAgent]) {
+                            groupedRules[rule.userAgent] = [];
+                        }
+                        groupedRules[rule.userAgent].push(rule);
+                    });
+
+                    for (const [userAgent, agentRules] of Object.entries(groupedRules)) {
+                        if (elements.addComments.checked) {
+                            output += `# Rules for ${userAgent}\n`;
+                        }
+                        output += `User-agent: ${userAgent}\n`;
+                        agentRules.forEach(rule => {
+                            if (rule.type === 'crawl-delay') {
+                                output += `Crawl-delay: ${rule.path}\n`;
+                            } else if (rule.type === 'sitemap') {
+                                output += `Sitemap: ${rule.path}\n`;
+                            } else {
+                                output += `${rule.type.charAt(0).toUpperCase() + rule.type.slice(1)}: ${rule.path}\n`;
+                            }
+                        });
+                        output += '\n';
+                    }
+                } else {
+                    // List rules sequentially
+                    rules.forEach(rule => {
+                        if (elements.addComments.checked && rule.type === 'sitemap') {
+                            output += '# XML Sitemap\n';
+                        }
+                        if (rule.type === 'sitemap') {
+                            output += `Sitemap: ${rule.path}\n`;
+                        } else {
+                            output += `User-agent: ${rule.userAgent}\n`;
+                            if (rule.type === 'crawl-delay') {
+                                output += `Crawl-delay: ${rule.path}\n`;
+                            } else {
+                                output += `${rule.type.charAt(0).toUpperCase() + rule.type.slice(1)}: ${rule.path}\n`;
+                            }
+                            output += '\n';
+                        }
+                    });
+                }
+
+                elements.robotsTxtOutput.textContent = output.trim();
+            }
+
+            function clearInputs() {
+                elements.userAgentInput.value = '*';
+                elements.ruleTypeInput.value = 'allow';
+                elements.pathInput.value = '';
+            }
+
+            function removeRule(index) {
+                rules.splice(index, 1);
+                updateRulesList();
+                updateRobotsTxt();
+            }
+
+            function applyTemplate(templateName) {
+                rules = [...templates[templateName]];
+                updateRulesList();
+                updateRobotsTxt();
+            }
+
+            // Event Listeners
+            buttons.addRule.addEventListener('click', addRule);
+
+            buttons.copy.addEventListener('click', () => {
+                navigator.clipboard.writeText(elements.robotsTxtOutput.textContent)
+                    .then(() => alert('robots.txt content copied to clipboard!'))
+                    .catch(() => alert('Failed to copy to clipboard'));
+            });
+
+            buttons.download.addEventListener('click', () => {
+                const blob = new Blob([elements.robotsTxtOutput.textContent], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'robots.txt';
+                a.click();
+                window.URL.revokeObjectURL(url);
+            });
+
+            // Template buttons
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const template = btn.dataset.template;
+                    if (templates[template]) {
+                        applyTemplate(template);
+                    }
+                });
+            });
+
+            // User-agent dropdown
+            document.querySelectorAll('[data-agent]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    elements.userAgentInput.value = item.dataset.agent;
+                });
+            });
+
+            // Path dropdown
+            document.querySelectorAll('[data-path]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    elements.pathInput.value = item.dataset.path;
+                });
+            });
+
+            // Settings changes
+            [elements.addComments, elements.groupRules].forEach(el => {
+                el.addEventListener('change', updateRobotsTxt);
+            });
+
+            // Make removeRule function globally available
+            window.removeRule = removeRule;
+        });
+    </script>
+</body>
+</html> 

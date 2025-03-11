@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Research Tool - Multi-Tools</title>
+    <meta name="description" content="Research keywords, analyze search volume, competition, and get suggestions for your SEO strategy.">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .keyword-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .difficulty-indicator {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin-right: 1rem;
+        }
+        .difficulty-easy { background-color: #198754; }
+        .difficulty-medium { background-color: #ffc107; }
+        .difficulty-hard { background-color: #dc3545; }
+        .trend-up { color: #198754; }
+        .trend-down { color: #dc3545; }
+        .trend-stable { color: #6c757d; }
+        .bulk-input {
+            height: 150px;
+            resize: none;
+        }
+        .filters-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .related-keywords {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .keyword-tag {
+            background-color: #e9ecef;
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+            display: inline-block;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .keyword-tag:hover {
+            background-color: #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header will be loaded dynamically -->
+    <div id="header-placeholder"></div>
+
+    <main class="container py-4">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1>Keyword Research Tool</h1>
+                <p class="tool-description">Research keywords, analyze search volume, competition, and get suggestions for your SEO strategy.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Research Keywords</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Single Keyword</label>
+                                <input type="text" class="form-control" id="keywordInput" placeholder="Enter a keyword">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Bulk Research</label>
+                                <textarea class="form-control bulk-input" id="bulkKeywords" placeholder="Enter one keyword per line&#10;keyword 1&#10;keyword 2&#10;keyword 3"></textarea>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" id="researchBtn">
+                                    <i class="bi bi-search"></i> Research Keyword
+                                </button>
+                                <button class="btn btn-outline-primary" id="bulkResearchBtn">
+                                    <i class="bi bi-list-check"></i> Bulk Research
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Filters</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Search Volume</label>
+                                <select class="form-select" id="volumeFilter">
+                                    <option value="all">All Volumes</option>
+                                    <option value="high">High (10k+)</option>
+                                    <option value="medium">Medium (1k-10k)</option>
+                                    <option value="low">Low (0-1k)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Competition</label>
+                                <select class="form-select" id="competitionFilter">
+                                    <option value="all">All Levels</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Word Count</label>
+                                <select class="form-select" id="wordCountFilter">
+                                    <option value="all">All Lengths</option>
+                                    <option value="1">1 Word</option>
+                                    <option value="2">2 Words</option>
+                                    <option value="3">3 Words</option>
+                                    <option value="4+">4+ Words</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Search History</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group" id="searchHistory">
+                                <!-- Search history items will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Keyword Analysis</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="loadingIndicator" class="text-center py-4" style="display: none;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 mb-0">Analyzing keywords...</p>
+                            </div>
+
+                            <div id="analysisResults" style="display: none;">
+                                <!-- Main Keyword Analysis -->
+                                <div class="keyword-card mb-4">
+                                    <div class="d-flex align-items-start">
+                                        <div class="difficulty-indicator" id="difficultyScore">75</div>
+                                        <div>
+                                            <h4 id="mainKeyword">Keyword</h4>
+                                            <div class="row g-3">
+                                                <div class="col-sm-4">
+                                                    <small class="text-muted d-block">Search Volume</small>
+                                                    <strong id="searchVolume">0</strong>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <small class="text-muted d-block">CPC</small>
+                                                    <strong id="cpcValue">$0.00</strong>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <small class="text-muted d-block">Competition</small>
+                                                    <strong id="competition">Low</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Trend Analysis -->
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Search Trend</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="trend-chart" id="trendChart" style="height: 200px;">
+                                            <!-- Trend chart will be added here -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Related Keywords -->
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="card-title mb-0">Related Keywords</h6>
+                                        <button class="btn btn-sm btn-success" id="exportBtn">
+                                            <i class="bi bi-download"></i> Export Data
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="related-keywords" id="relatedKeywords">
+                                            <!-- Related keywords will be added here -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- SERP Analysis -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">SERP Analysis</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Position</th>
+                                                        <th>Title</th>
+                                                        <th>Domain</th>
+                                                        <th>DA</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="serpResults">
+                                                    <!-- SERP results will be added here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Space -->
+            <div class="ad-space mt-4">
+                <small class="text-muted">Advertisement</small>
+                <!-- Add your ad code here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded dynamically -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const keywordInput = document.getElementById('keywordInput');
+            const researchBtn = document.getElementById('researchBtn');
+            const bulkResearchBtn = document.getElementById('bulkResearchBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const analysisResults = document.getElementById('analysisResults');
+            const exportBtn = document.getElementById('exportBtn');
+
+            researchBtn.addEventListener('click', () => {
+                if (!keywordInput.value.trim()) {
+                    alert('Please enter a keyword');
+                    return;
+                }
+
+                // Show loading
+                loadingIndicator.style.display = 'block';
+                analysisResults.style.display = 'none';
+
+                // Simulate research process
+                setTimeout(() => {
+                    analyzeKeyword(keywordInput.value);
+                }, 2000);
+            });
+
+            bulkResearchBtn.addEventListener('click', () => {
+                const bulkKeywords = document.getElementById('bulkKeywords').value.trim();
+                if (!bulkKeywords) {
+                    alert('Please enter at least one keyword');
+                    return;
+                }
+
+                const keywords = bulkKeywords.split('\n').filter(k => k.trim());
+                if (keywords.length > 10) {
+                    alert('Maximum 10 keywords allowed for bulk research');
+                    return;
+                }
+
+                // Show loading
+                loadingIndicator.style.display = 'block';
+                analysisResults.style.display = 'none';
+
+                // Simulate bulk research process
+                setTimeout(() => {
+                    analyzeKeyword(keywords[0]);
+                }, 2000);
+            });
+
+            function analyzeKeyword(keyword) {
+                // Update main keyword metrics
+                document.getElementById('mainKeyword').textContent = keyword;
+                document.getElementById('searchVolume').textContent = Math.floor(Math.random() * 10000);
+                document.getElementById('cpcValue').textContent = '$' + (Math.random() * 5).toFixed(2);
+                document.getElementById('competition').textContent = ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)];
+
+                const difficulty = Math.floor(Math.random() * 100);
+                const difficultyEl = document.getElementById('difficultyScore');
+                difficultyEl.textContent = difficulty;
+                difficultyEl.className = `difficulty-indicator difficulty-${
+                    difficulty >= 70 ? 'hard' : difficulty >= 40 ? 'medium' : 'easy'
+                }`;
+
+                // Generate related keywords
+                generateRelatedKeywords(keyword);
+
+                // Generate SERP results
+                generateSerpResults();
+
+                // Add to history
+                addToHistory(keyword, difficulty);
+
+                // Show results
+                loadingIndicator.style.display = 'none';
+                analysisResults.style.display = 'block';
+            }
+
+            function generateRelatedKeywords(keyword) {
+                const relatedKeywords = document.getElementById('relatedKeywords');
+                const variations = [
+                    'best ' + keyword,
+                    keyword + ' online',
+                    'how to ' + keyword,
+                    keyword + ' guide',
+                    keyword + ' tutorial',
+                    'cheap ' + keyword,
+                    keyword + ' for beginners',
+                    'professional ' + keyword,
+                    keyword + ' services',
+                    keyword + ' near me'
+                ];
+
+                relatedKeywords.innerHTML = variations.map(kw => `
+                    <span class="keyword-tag">${kw}</span>
+                `).join('');
+            }
+
+            function generateSerpResults() {
+                const serpResults = document.getElementById('serpResults');
+                serpResults.innerHTML = '';
+
+                for (let i = 1; i <= 10; i++) {
+                    serpResults.innerHTML += `
+                        <tr>
+                            <td>${i}</td>
+                            <td>Example Search Result ${i}</td>
+                            <td>example${i}.com</td>
+                            <td>${Math.floor(Math.random() * 100)}</td>
+                        </tr>
+                    `;
+                }
+            }
+
+            function addToHistory(keyword, difficulty) {
+                const history = document.getElementById('searchHistory');
+                const item = document.createElement('a');
+                item.href = '#';
+                item.className = 'list-group-item list-group-item-action';
+                item.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-truncate" style="max-width: 200px;">${keyword}</div>
+                            <small class="text-muted">${new Date().toLocaleString()}</small>
+                        </div>
+                        <span class="badge bg-${
+                            difficulty >= 70 ? 'danger' : difficulty >= 40 ? 'warning' : 'success'
+                        } rounded-pill">${difficulty}</span>
+                    </div>
+                `;
+                history.insertBefore(item, history.firstChild);
+            }
+
+            // Export functionality
+            exportBtn.addEventListener('click', () => {
+                const report = {
+                    keyword: keywordInput.value,
+                    date: new Date().toISOString(),
+                    metrics: {
+                        searchVolume: document.getElementById('searchVolume').textContent,
+                        cpc: document.getElementById('cpcValue').textContent,
+                        competition: document.getElementById('competition').textContent,
+                        difficulty: document.getElementById('difficultyScore').textContent
+                    }
+                };
+
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'keyword-research-report.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+</body>
+</html> 
